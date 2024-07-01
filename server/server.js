@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const authRouter = require("./router/auth-router"); 
-
+const questionBanksRoute=require("./router/questionBank-router")
 const connectDb=require("./utils/db");
 const errormMiddleware = require("./middleware/error-middleware");
 const cors=require('cors');
@@ -16,8 +16,8 @@ const corsOptions={
   app.use(cors(corsOptions))
 
   app.use(express.json());
-  //This line enables the Express.js JSON middleware, which parses incoming request bodies as JSON. This means that you can access the data in the body of a POST request using req.body in your route handlers.
   app.use("/api/auth", authRouter);
+  app.use("/api/questionBanks", questionBanksRoute);
 
   app.use(errormMiddleware)
   
