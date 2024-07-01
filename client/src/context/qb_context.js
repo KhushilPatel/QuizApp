@@ -6,7 +6,7 @@ const initialState = {
   questionBanks: [],
 };
 
-// Create context and export provider and hook
+
 const QuestionBankContext = createContext();
 
 export const useQuestionBankContext = () => useContext(QuestionBankContext);

@@ -18,6 +18,8 @@ module.exports = {
     },
     extend: {
       colors: {
+        'disabled-bg': '#f0f0f0', // Background color for disabled fields
+        'disabled-text': '#a0a0a0', // Text color for disabled fields
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
