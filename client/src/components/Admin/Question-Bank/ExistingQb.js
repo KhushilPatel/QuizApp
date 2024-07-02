@@ -33,7 +33,7 @@ const QuestionBankList = () => {
                 </div>
               </div>
               <p className="text-gray-500 mt-2">{bank.description}</p>
-              {/* Add more details as needed */}
+             
             </li>
           ))}
         </ul>
