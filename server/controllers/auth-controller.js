@@ -13,14 +13,14 @@ const home = async (req, res) => {
 const register = async (req, res) => {
   try {
     console.log(req.body);
-    const { firstName,lastName, email, password } = req.body;
+    const { firstName,lastName, email, password,dateOfBirth,gender } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: "email already exists" });
     }
 
-    const userCreated = await User.create({ firstName,lastName, email, password });
+    const userCreated = await User.create({ firstName,lastName, email, password,dateOfBirth,gender });
     res
       .status(201)
       .json({

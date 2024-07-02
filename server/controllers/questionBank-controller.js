@@ -2,7 +2,6 @@ const QuestionBank = require("../models/Questionbank-model");
 
 
 const createQuestionBank = async (req, res) => {
-  console.log("RAM")
   try {
     const questionBank = new QuestionBank(req.body);
     await questionBank.save();
