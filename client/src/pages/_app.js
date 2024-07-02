@@ -8,7 +8,8 @@ import { QuestionBankProvider } from '@/context/qb_context';
 
 function App({ Component, pageProps }) {
   const router = useRouter();
-  const noLayoutRoutes = ['/signUp', '/signIn', '/admin/question-bank/add'];
+  const noLayoutRoutes = ['/signUp', '/signIn', '/admin/question-bank/add', '/admin/question-bank/[id]'];
+
 
   // Determine whether to render with or without layout based on route
   const shouldRenderWithLayout = !noLayoutRoutes.includes(router.pathname);

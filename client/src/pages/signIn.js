@@ -3,12 +3,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { toast } from "react-toastify";
+import { useCookies } from 'react-cookie';
 export default function SignIn() {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const router=useRouter()
+  const [cookies, setCookie] = useCookies(["auth"]);
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -24,15 +26,17 @@ export default function SignIn() {
         credentials: 'include',
         body: JSON.stringify(formData),
       });
-console.log("response",response)
       const res_data = await response.json();
+      console.log(res_data)
       if (response.ok) {
+        setCookie('auth', res_data.token,{ expires: new Date(Date.now() +7 * 24 * 60 * 60 * 1000) });
         router.push("admin/dashboard");
         setUser({
           email: "",
           password: "",
         });
         toast.success("Login Successful");
+
       } else {
         toast.error(res_data.extraDetails ? res_data.extraDetails : res_data.message);
       }

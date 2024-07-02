@@ -48,7 +48,7 @@ const Navbar = () => {
               alt="Dashboard Icon"
               className="w-6 h-6 mr-3"
             />
-            <a href="/new-quizzes">New Quizzes</a>
+            <a href="/admin/quizzes">New Quizzes</a>
           </li>
           <li className="flex items-center hover:bg-gray-100 cursor-pointer">
             <a href="/contact">

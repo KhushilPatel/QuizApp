@@ -48,6 +48,7 @@ const AddQuestionBank = () => {
     const questionBank = {
       title,
       description,
+      time,
       questions,
     };
 
@@ -57,6 +58,7 @@ const AddQuestionBank = () => {
         questionBank
       );
       alert("Question bank created successfully");
+      router.push('/admin/question-bank')
       console.log(response.data);
     } catch (error) {
       console.error("Error creating question bank", error);
