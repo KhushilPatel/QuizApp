@@ -1,4 +1,3 @@
-// pages/index.js (or wherever your QuestionBankList component resides)
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
@@ -10,7 +9,7 @@ const QuestionBankList = () => {
     async function fetchQuestionBanks() {
       try {
         const response = await axios.get('http://localhost:4000/api/questionBanks');
-        setQuestionBanks(response.data); 
+        setQuestionBanks(response.data);
       } catch (error) {
         console.error('Error fetching question banks:', error);
       }
@@ -20,23 +19,36 @@ const QuestionBankList = () => {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-4">Existing Question Banks</h2>
-      <ul>
-        {questionBanks.map((bank) => (
-          <li key={bank._id} className="bg-white rounded-lg shadow-md p-4 mb-4">
-            <div>
-              <h3 className="text-lg font-semibold mb-2">{bank.title}</h3>
-              <p className="text-gray-600">{bank.description}</p>
-              <Link href={`/admin/question-bank/${bank._id}`}>
-                <p className="inline-block mt-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition duration-300">
-                  View Details
-                </p>
-              </Link>
-            </div>
-          </li>
-        ))}
-      </ul>
+    <div className=" w-[1130px] rounded-xl  ">
+      <div className="overflow-x-auto  border-collapse border rounded-xl">
+        
+            <table className="min-w-full bg-white">
+        <thead className="bg-[#0D1321] text-white">
+            <tr>
+              <th className="py-2 px-4 border-b border-r text-center">Title</th>
+              <th className="py-2 px-4 border-b border-r text-center">Duration (minutes)</th>
+              <th className="py-2 px-4 border-b border-r text-center">Number of Questions</th>
+              <th className="py-2 px-4 border-b border-r text-center">Description</th>
+              <th className="py-2 px-4 border-b border-r text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {questionBanks.map((bank) => (
+              <tr key={bank._id}>
+                <td className="py-1 px-4 border-b border-r text-center">{bank.title}</td>
+                <td className="py-1 px-4 border-b border-r text-center">{bank.time}</td>
+                <td className="py-1 px-4 border-b border-r text-center">{bank.questions.length}</td>
+                <td className="py-1 px-4 border-b border-r text-center">{bank.description}</td>
+                <td className="py-1 px-4 border-b border-r text-center">
+                  <Link href={`/admin/question-bank/${bank._id}`} className='flex justify-center'>
+                    <p className="py-2   bg-[#C5D86D] w-[75px] h-[40px] rounded-2xl">Edit</p>
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

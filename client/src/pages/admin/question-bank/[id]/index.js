@@ -1,10 +1,11 @@
-// pages/[id].js
+
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import { useState } from 'react';
 
 const QuestionBankDetails = ({ bank }) => {
   const router = useRouter();
+  console.log("bank",bank)
   const [questions, setQuestions] = useState(bank.questions || []);
 
   const handleQuestionChange = (qIndex, e) => {
@@ -38,11 +39,46 @@ const QuestionBankDetails = ({ bank }) => {
   if (!bank) {
     return <p>Loading...</p>;
   }
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const title=bank.title
+    const description=bank.description
+    const time=bank.time
+    const questions=bank.questions
+    const questionBank = {
+      title,
+      description,
+      time,
+      questions,
+    };
 
+    try {
+      const response = await axios.put(
+      `  http://localhost:4000/api/questionBanks/${bank._id}`,
+        questionBank
+      );
+      alert("Question bank Updated successfully");
+      router.push('/admin/question-bank')
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error creating question bank", error);
+    }
+  };
+
+  const handleDelete=()=>{
+    axios.delete(`http://localhost:4000/api/questionBanks/${bank._id}`)
+    .then((res)=>{
+      alert("Question bank Deleted successfully");
+      router.push('/admin/question-bank')
+    })
+    .catch((err)=>{
+      console.log(err)
+    })
+  }
   return (
     <div className="w-screen mx-auto mt-10 p-6 border rounded-lg shadow-lg bg-white">
       <h1 className="text-2xl font-bold mb-6 text-center">Question Bank Details</h1>
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2">Title:</label>
           <input
@@ -128,6 +164,13 @@ const QuestionBankDetails = ({ bank }) => {
           className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-4"
         >
           Go Back
+        </button>
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-4"
+        >
+        Delete
         </button>
       </form>
     </div>

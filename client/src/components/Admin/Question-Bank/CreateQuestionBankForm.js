@@ -45,11 +45,13 @@ const AddQuestionBank = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const currentDateTime = new Date().toISOString();
     const questionBank = {
       title,
       description,
       time,
       questions,
+      createdAt: currentDateTime,
     };
 
     try {
