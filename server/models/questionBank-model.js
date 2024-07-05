@@ -9,6 +9,7 @@ const questionBankSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
   time:String,
+  createdAt:String,
   questions: [questionSchema],
 });
 

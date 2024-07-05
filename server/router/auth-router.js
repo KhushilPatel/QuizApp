@@ -14,5 +14,7 @@ router.route('/register').post(authControllers.register);
 
 router.route('/login').post(authControllers.login);  
 router.route('/user').get(authMiddleware,authControllers.user); 
+router.route('/user/:id').put(authMiddleware,authControllers.updateUser); 
+router.route('/user/:id').delete(authControllers.deleteUser); 
 
 module.exports=router;

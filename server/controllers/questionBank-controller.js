@@ -4,6 +4,7 @@ const QuestionBank = require("../models/Questionbank-model");
 const createQuestionBank = async (req, res) => {
   try {
     const questionBank = new QuestionBank(req.body);
+  
     await questionBank.save();
     res.status(201).json({
       msg: "Question bank created successfully",
