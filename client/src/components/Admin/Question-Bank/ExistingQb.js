@@ -40,7 +40,7 @@ const QuestionBankList = () => {
                 <td className="py-1 px-4 border-b border-r text-center">{bank.questions.length}</td>
                 <td className="py-1 px-4 border-b border-r text-center">{bank.description}</td>
                 <td className="py-1 px-4 border-b border-r text-center">
-                  <Link href={`/admin/question-bank/${bank._id}`} className='flex justify-center'>
+                  <Link href={`/admin/question-bank/edit/${bank._id}`} className='flex justify-center'>
                     <p className="py-2   bg-[#C5D86D] w-[75px] h-[40px] rounded-2xl">Edit</p>
                   </Link>
                 </td>

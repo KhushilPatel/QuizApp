@@ -3,14 +3,16 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import "tailwindcss/tailwind.css";
 
-const AddQuestionBank = () => {
+const QuestionBankForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
   const router = useRouter();
-  const { title, description, time } = router.query;
+  const { title: initialTitle, description: initialDescription, time: initialTime, questions: initialQuestions } = initialData;
 
-  const [questions, setQuestions] = useState([
+  const [title, setTitle] = useState(initialTitle || "");
+  const [description, setDescription] = useState(initialDescription || "");
+  const [time, setTime] = useState(initialTime || "");
+  const [questions, setQuestions] = useState(initialQuestions || [
     { questionText: "", options: [{ text: "", isCorrect: false }] },
   ]);
-  console.log("questions", questions);
 
   const handleAddQuestion = () => {
     setQuestions([
@@ -51,50 +53,40 @@ const AddQuestionBank = () => {
       description,
       time,
       questions,
-      createdAt: currentDateTime,
+      createdAt: isEdit ? initialData.createdAt : currentDateTime,
     };
 
-    try {
-      const response = await axios.post(
-        "http://localhost:4000/api/questionBanks",
-        questionBank
-      );
-      alert("Question bank created successfully");
-      router.push('/admin/question-bank')
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error creating question bank", error);
-    }
+    onSubmit(questionBank);
   };
 
   return (
     <div className="max-w-4xl mx-auto mt-10 p-6 border rounded-lg shadow-lg bg-white">
-      <h1 className="text-2xl font-bold mb-6 text-center">Add Question Bank</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center">{isEdit ? 'Edit' : 'Add'} Question Bank</h1>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2">Title:</label>
           <input
             type="text"
             value={title}
-            disabled
+            onChange={(e) => setTitle(e.target.value)}
             required
-            className="w-full px-3 py-2 border rounded-lg bg-disabled-bg text-disabled-text cursor-not-allowed"
+            className="w-full px-3 py-2 border rounded-lg "
           />
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2">Description:</label>
           <input
             value={description}
-            disabled
-            className="w-full px-3 py-2 border rounded-lg bg-disabled-bg text-disabled-text cursor-not-allowed"
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full px-3 py-2 border rounded-lg "
           />
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2">Time:</label>
           <input
-            value={`${time} minutes`}
-            disabled
-            className="w-full px-3 py-2 border rounded-lg bg-disabled-bg text-disabled-text cursor-not-allowed"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            className="w-full px-3 py-2 border rounded-lg "
           />
         </div>
         {questions.map((question, qIndex) => (
@@ -113,21 +105,20 @@ const AddQuestionBank = () => {
             {question.options.map((option, oIndex) => (
               <div key={oIndex} className="mb-4">
                 <label className="block text-gray-700 font-bold mb-2">Option {oIndex + 1}:</label>
-                <input
-                  type="text"
-                  value={option.text}
-                  onChange={(e) => handleChangeOption(qIndex, oIndex, e)}
-                  required
-                  className="w-full px-3 py-2 border rounded-lg"
-                />
-                <label className="inline-flex items-center mt-2">
+                <label className="flex gap-1">
                   <input
                     type="checkbox"
                     checked={option.isCorrect}
                     onChange={(e) => handleChangeCorrectOption(qIndex, oIndex, e)}
-                    className="form-checkbox"
+                    className="mt-2 size-9"
                   />
-                  <span className="ml-2">Correct</span>
+                  <input
+                    type="text"
+                    value={option.text}
+                    onChange={(e) => handleChangeOption(qIndex, oIndex, e)}
+                    required
+                    className="w-[3/2] px-3 py-2 border rounded-lg"
+                  />
                 </label>
               </div>
             ))}
@@ -140,7 +131,7 @@ const AddQuestionBank = () => {
             </button>
           </div>
         ))}
-        <div className="button-group mb-6">
+        <div className="flex justify-between mb-6">
           <button
             type="button"
             onClick={handleAddQuestion}
@@ -150,7 +141,7 @@ const AddQuestionBank = () => {
           </button>
           <button
             type="submit"
-            className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
+            className="bg-[#C5D86D] font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:bg-[#A4C639] hover:scale-105 active:bg-[#8BBF00]"
           >
             Submit
           </button>
@@ -160,4 +151,4 @@ const AddQuestionBank = () => {
   );
 };
 
-export default AddQuestionBank;
+export default QuestionBankForm;

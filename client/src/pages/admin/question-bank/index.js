@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import Modal from "react-modal";
 import QuestionBankList from "@/components/Admin/Question-Bank/ExistingQb";
 import { IoMdAddCircle } from "react-icons/io";
+import { ImCross } from "react-icons/im";
 const QuestionBankModule = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -27,17 +28,12 @@ const QuestionBankModule = () => {
       <div className="w-full border-2 rounded-2xl p-5">
         <div className="flex gap-[500px]">
           <h2 className="text-3xl font-bold text-center mb-8">
-            Existing Question Banks
+            Question Banks
           </h2>
           <div
             onClick={openModal}
             className="bg-[#C5D86D] hover:bg-black hover:text-white gap-3 text-black px-4 py-2  flex w-[270px] h-[45px] rounded-xl border-2 items-center cursor-pointer mx-auto mb-8"
           >
-            {/* <img
-              className="w-[200px] h-12 mr-2 object-contain"
-              src="/images/qb.png"
-              alt="Create Question Bank"
-            /> */}
             <div>
               <IoMdAddCircle className="text-2xl" />
             </div>
@@ -59,31 +55,19 @@ const QuestionBankModule = () => {
         overlayClassName="overlay"
       >
         <form onSubmit={handleSubmit}>
-          <div className="flex items-center justify-between">
+          <div className="flex justify-between">
             <h2 className="text-lg font-semibold mb-2">
               Set up a new question bank
             </h2>
-            <button
-              type="submit"
-              className="ml-24 border-l text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
-              <img
-                className="w-[26px] h-[20px] object-contain"
-                src="/images/right.png"
-                alt="Submit"
-              />
-            </button>
-            <button
-              type="button"
-              onClick={closeModal}
-              className="border-l py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
-              <img
-                className="w-[26px] h-[20px] object-contain"
-                src="/images/wrong.png"
-                alt="Close"
-              />
-            </button>
+            <div className="flex items-center justify-end">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="border-l py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              >
+                <ImCross className="size-5  font-extrabold text-3xl text-red-700" />
+              </button>
+            </div>
           </div>
           <hr />
           <div className="mb-4">
@@ -139,6 +123,14 @@ const QuestionBankModule = () => {
                 </option>
               ))}
             </select>
+          </div>
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className="bg-[#C5D86D] font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:bg-[#A4C639] hover:scale-105 active:bg-[#8BBF00]"
+            >
+              Submit
+            </button>
           </div>
         </form>
       </Modal>
