@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const authRouter = require("./router/auth-router"); 
 const questionBanksRoute=require("./router/questionBank-router")
+const quizRoutes = require('./router/quiz-router');
 const connectDb=require("./utils/db");
 const errormMiddleware = require("./middleware/error-middleware");
 const cors=require('cors');
@@ -18,6 +19,7 @@ const corsOptions={
   app.use(express.json());
   app.use("/api/auth", authRouter);
   app.use("/api/questionBanks", questionBanksRoute);
+  app.use('/api/quizzes', quizRoutes);
 
   app.use(errormMiddleware)
   
