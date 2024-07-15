@@ -9,7 +9,7 @@ const Sidebar = () => {
     };
 
     return (
-        <div className="h-screen bg-white text-black w-[200px] shadow-lg border-r-2">
+        <div className="h-[700px] bg-white text-black w-[200px] shadow-lg border-r-2">
             <ul className="mt-6 flex flex-col gap-8">
                 <li
                     className={`flex items-center px-4 py-3 cursor-pointer    border-b-2 ${isActive('/admin/dashboard')}`}

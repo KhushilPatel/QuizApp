@@ -3,6 +3,7 @@ import { IoMdAddCircle } from "react-icons/io";
 import { useRouter } from "next/router";
 import ModalComponent from "@/components/Admin/Quizzes/CreateQuiz";
 import QuizList from "@/components/Admin/Quizzes/ExistingQuizzes";
+import AdminRoute from "@/components/Admin/AdminRoute";
 
 const QuizComponent = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,6 +21,8 @@ const QuizComponent = () => {
   const closeModal = () => setIsModalOpen(false);
 
   return (
+    <AdminRoute>
+      
     <div className="flex mx-auto">
        <div className="w-full border-2 rounded-2xl p-5">
       <div className="flex gap-[630px]">
@@ -51,6 +54,8 @@ const QuizComponent = () => {
         router={router}
       />
     </div>
+
+    </AdminRoute>
   );
 };
 

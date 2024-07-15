@@ -3,31 +3,30 @@ import Layout from '../components/Layout';
 import '../styles/globals.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { UserProvider } from '@/context/UserContext';
 
   
-import { QuestionBankProvider } from '@/context/qb_context';
 
 function App({ Component, pageProps }) {
   const router = useRouter();
+  //This array lists the routes where you don't want to use the Layout component.Means where i don't want navbar and sidebar
   const noLayoutRoutes = ['/signUp', '/signIn', '/admin/question-bank/add', '/admin/question-bank/edit/[id]'];
 
-
-  // Determine whether to render with or without layout based on route
   const shouldRenderWithLayout = !noLayoutRoutes.includes(router.pathname);
 
   return (
+    <UserProvider>
+      
     <>
       {shouldRenderWithLayout ? (
         <Layout>
         
-            <QuestionBankProvider>
               <Component {...pageProps} />
               <ToastContainer position="top-center" autoClose={5000} />
-            </QuestionBankProvider>
          
         </Layout>
       ) : (
-        // Render without layout for specific routes
+     
         <div>
 
           <Component {...pageProps} />
@@ -35,6 +34,8 @@ function App({ Component, pageProps }) {
         </div>
       )}
     </>
+
+    </UserProvider>
   );
 }
 

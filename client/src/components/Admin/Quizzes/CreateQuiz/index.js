@@ -17,6 +17,7 @@ const quizSchema = z.object({
 const CreateOrEditQuiz = ({ isOpen, onRequestClose, router, quizId, onEditSuccess }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [questionBanks, setQuestionBanks] = useState([]);
+ 
   const {
     register,
     handleSubmit,
@@ -40,7 +41,7 @@ const CreateOrEditQuiz = ({ isOpen, onRequestClose, router, quizId, onEditSucces
       setIsEditMode(false);
     }
 
-    fetchQuestionBanks(); // Fetch question banks on component mount
+    fetchQuestionBanks(); 
   }, [quizId]);
 
   const resetForm = () => {
@@ -53,12 +54,13 @@ const CreateOrEditQuiz = ({ isOpen, onRequestClose, router, quizId, onEditSucces
     });
   };
 
+
   const fetchQuiz = async () => {
     try {
       const response = await axios.get(`http://localhost:4000/api/quizzes/${quizId}`);
       const { quizName, questionBank, score, description, createdAt } = response.data;
       setValue("title", quizName);
-      setValue("questionBank", questionBank?._id); // Ensure to check for existence of questionBank
+      setValue("questionBank", questionBank?._id); 
       setValue("score", score);
       setValue("description", description);
       setValue("createdAt", createdAt.toString().slice(0, 16));
@@ -67,11 +69,13 @@ const CreateOrEditQuiz = ({ isOpen, onRequestClose, router, quizId, onEditSucces
     }
   };
 
+  
+
   const fetchQuestionBanks = async () => {
     try {
       const response = await axios.get("http://localhost:4000/api/questionBanks");
       setQuestionBanks(response.data);
-      console.log("questionBanks",questionBanks)
+    
     } catch (error) {
       console.error("Error fetching question banks:", error);
     }
@@ -102,7 +106,7 @@ const CreateOrEditQuiz = ({ isOpen, onRequestClose, router, quizId, onEditSucces
             createdAt: data.createdAt,
           },
         });
-        window.location.reload();
+      
       }
     } catch (error) {
       console.error(`Error ${isEditMode ? 'updating' : 'creating'} quiz:`, error);

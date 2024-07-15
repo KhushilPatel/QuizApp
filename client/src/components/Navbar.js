@@ -1,11 +1,13 @@
-// components/Navbar.js
 
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { IoIosMail } from "react-icons/io";
 import { FaBell } from "react-icons/fa";
+import Cookies from 'js-cookie';
 
+
+import { toast } from "react-toastify";
 const Navbar = () => {
   const userName = "KhushilPatel";
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -25,6 +27,10 @@ const Navbar = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  const handleLogout = () => {
+    Cookies.remove('auth', { path: '/' });
+    window.location.href = "/signIn";
+  }
   return (
     <nav className="bg-white flex items-center justify-between h-16 border-b-2">
       <div className="flex items-center ml-20">
@@ -72,7 +78,7 @@ const Navbar = () => {
                 <li>
                   <button
                     className="block w-full text-left px-4 py-2 hover:bg-red-500 bg-red-400 text-white cursor-pointer"
-                    onClick={() => router.push("/logout")}
+                    onClick={handleLogout}
                   >
                     Logout
                   </button>

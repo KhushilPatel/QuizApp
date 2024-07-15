@@ -7,8 +7,8 @@ import * as z from "zod";
 import QuestionBankList from "@/components/Admin/Question-Bank/ExistingQb";
 import { IoMdAddCircle } from "react-icons/io";
 import { ImCross } from "react-icons/im";
+import AdminRoute from "@/components/Admin/AdminRoute";
 
-// Define the schema using Zod
 const questionBankSchema = z.object({
   title: z.string().min(2, { message: "*Title is required" }),
   description: z.string().min(3, { message: "*Description is required" }),
@@ -44,6 +44,8 @@ const QuestionBankModule = () => {
   };
 
   return (
+    <AdminRoute>
+      
     <div className="flex mx-auto">
       <div className="w-full border-2 rounded-2xl p-5">
         <div className="flex gap-[500px]">
@@ -137,6 +139,8 @@ const QuestionBankModule = () => {
         </form>
       </Modal>
     </div>
+
+    </AdminRoute>
   );
 };
 

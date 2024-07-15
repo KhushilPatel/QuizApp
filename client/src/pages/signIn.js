@@ -2,20 +2,24 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { toast } from "react-toastify";
-import { useCookies } from 'react-cookie';
+import { toast } from 'react-toastify';
+import Cookies from 'js-cookie';
+import { useUser } from '@/context/UserContext';
+
 export default function SignIn() {
+
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-  const router=useRouter()
-  const [cookies, setCookie] = useCookies(["auth"]);
+  const router = useRouter();
+
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await fetch("http://localhost:4000/api/auth/login", {
@@ -27,16 +31,15 @@ export default function SignIn() {
         body: JSON.stringify(formData),
       });
       const res_data = await response.json();
-      console.log(res_data)
       if (response.ok) {
-        setCookie('auth', res_data.token,{ expires: new Date(Date.now() +7 * 24 * 60 * 60 * 1000) });
-        router.push("admin/dashboard");
-        setUser({
+        Cookies.set( 'auth', res_data.token, { expires: 7, path: '/' });
+        
+        window.location.href = "/admin/dashboard";
+        setFormData({
           email: "",
           password: "",
         });
         toast.success("Login Successful");
-
       } else {
         toast.error(res_data.extraDetails ? res_data.extraDetails : res_data.message);
       }
@@ -47,9 +50,9 @@ export default function SignIn() {
 
   return (
     <div className="min-h-screen flex bg-[#0D1321] ">
-        <div className="flex absolute m-14 ml-24 mt-24">
-          <img src="/images/logo.png" alt="Logo" className="w-30 h-12 " />
-        </div>
+      <div className="flex absolute m-14 ml-24 mt-24">
+        <img src="/images/logo.png" alt="Logo" className="w-30 h-12 " />
+      </div>
       <div className='flex'>
         <div className="w-1/2 bg-[#0D1321] p-4 flex flex-col justify-center mt-5 ml-20">
           <p className="text-[#C5D86D] mb-4 font-bold text-2xl">Welcome back to QuizWiz!</p>

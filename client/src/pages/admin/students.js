@@ -1,3 +1,4 @@
+import AdminRoute from "@/components/Admin/AdminRoute";
 import ConfirmationDialog from "@/components/ui/ConfirmationDialogue";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -35,15 +36,16 @@ const Students = () => {
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        const response = await fetch("http://localhost:4000/api/auth/user", {
+        const response = await fetch("http://localhost:4000/api/students", {
           method: "GET",
           headers: {
             Authorization: auth,
+            'Cache-Control': 'no-cache',
           },
         });
         const data = await response.json();
         console.log("data", data);
-        setStudents(data.userData);
+        setStudents(data);
       } catch (error) {
         setError(error.message);
       } finally {
@@ -155,6 +157,7 @@ const Students = () => {
   };
 
   return (
+    <AdminRoute>
     <div className="p-6 font-sans w-[1130px] border-2 rounded-lg">
       <h1 className="text-3xl font-bold mb-4">Students</h1>
       {loading && <p className="text-lg text-gray-500">Loading...</p>}
@@ -163,7 +166,7 @@ const Students = () => {
         <>
           <div className="flex gap-[500px]">
             <p className="text-lg text-gray-700 mb-4">
-              Number of registered students: {students.length}
+              Number of registered students: {students?.length}
             </p>
             <div
               onClick={() => setAddMode(true)}
@@ -201,8 +204,8 @@ const Students = () => {
                 </tr>
               </thead>
               <tbody>
-                {students.map((student) => (
-                  <tr key={student.id}>
+                {students?.map((student) => (
+                  <tr key={student._id}>
                     <td className="py-2 px-4 border-b border-r text-center">
                       {student.firstName}
                     </td>
@@ -381,6 +384,7 @@ const Students = () => {
         onConfirm={handleConfirmDelete}
       />
     </div>
+    </AdminRoute>
   );
 };
 
