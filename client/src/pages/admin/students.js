@@ -1,7 +1,9 @@
+import ConfirmationDialog from "@/components/ui/ConfirmationDialogue";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { IoMdPersonAdd } from "react-icons/io";
+import { toast } from "react-toastify";
 
 const Students = () => {
   const [students, setStudents] = useState([]);
@@ -26,6 +28,9 @@ const Students = () => {
     gender: "",
   });
   const [{ auth }] = useCookies(["auth"]);
+
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState(null);
 
   useEffect(() => {
     const fetchStudentData = async () => {
@@ -64,16 +69,14 @@ const Students = () => {
     }
   };
 
-  const handleDelete = (student) => {
-    axios
-      .delete(`http://localhost:4000/api/auth/user/${student._id}`)
-      .then((res) => {
-        alert("Student deleted successfully");
-        setStudents(students.filter((s) => s._id !== student._id));
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  const handleDelete = async (student) => {
+    try {
+      await axios.delete(`http://localhost:4000/api/auth/user/${student._id}`);
+      toast("Student deleted successfully");
+      setStudents(students.filter((s) => s._id !== student._id));
+    } catch (err) {
+      console.log(err);
+    }
     setEditMode(false);
   };
 
@@ -99,6 +102,13 @@ const Students = () => {
           )
         );
         setEditMode(false);
+        setEditedStudent({
+          firstName: "",
+          lastName: "",
+          email: "",
+          dateOfBirth: "",
+          gender: "",
+        }); // Reset editedStudent state
       } catch (error) {
         setError(error.message);
       }
@@ -117,9 +127,30 @@ const Students = () => {
         const data = await response.json();
         setStudents([...students, data]);
         setAddMode(false);
+        setNewStudent({
+          firstName: "",
+          lastName: "",
+          email: "",
+          password: "",
+          dateOfBirth: "",
+          gender: "",
+        }); // Reset newStudent state
       } catch (error) {
         setError(error.message);
       }
+    }
+  };
+
+  const confirmDelete = (student) => {
+    setStudentToDelete(student);
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (studentToDelete) {
+      handleDelete(studentToDelete);
+      setStudentToDelete(null);
+      setShowConfirmation(false);
     }
   };
 
@@ -196,7 +227,7 @@ const Students = () => {
                       </button>
                       <button
                         className=" px-4 bg-red-500 w-[75px] h-[35px] rounded-xl"
-                        onClick={() => handleDelete(student)}
+                        onClick={() => confirmDelete(student)}
                       >
                         Delete
                       </button>
@@ -231,7 +262,6 @@ const Students = () => {
                   }
                   onChange={handleInputChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
                 />
               </div>
               <div className="mb-4">
@@ -245,12 +275,9 @@ const Students = () => {
                   id="lastName"
                   name="lastName"
                   type="text"
-                  value={
-                    editMode ? editedStudent.lastName : newStudent.lastName
-                  }
+                  value={editMode ? editedStudent.lastName : newStudent.lastName}
                   onChange={handleInputChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
                 />
               </div>
               <div className="mb-4">
@@ -267,10 +294,9 @@ const Students = () => {
                   value={editMode ? editedStudent.email : newStudent.email}
                   onChange={handleInputChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
                 />
               </div>
-              {addMode && (
+              {!editMode && (
                 <div className="mb-4">
                   <label
                     className="block text-gray-700 text-sm font-bold mb-2"
@@ -285,7 +311,6 @@ const Students = () => {
                     value={newStudent.password}
                     onChange={handleInputChange}
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    required
                   />
                 </div>
               )}
@@ -301,13 +326,10 @@ const Students = () => {
                   name="dateOfBirth"
                   type="date"
                   value={
-                    editMode
-                      ? editedStudent.dateOfBirth
-                      : newStudent.dateOfBirth
+                    editMode ? editedStudent.dateOfBirth : newStudent.dateOfBirth
                   }
                   onChange={handleInputChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
                 />
               </div>
               <div className="mb-4">
@@ -323,9 +345,8 @@ const Students = () => {
                   value={editMode ? editedStudent.gender : newStudent.gender}
                   onChange={handleInputChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
                 >
-                  <option value="">Select gender</option>
+                  <option value="">Select Gender</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                   <option value="Other">Other</option>
@@ -334,25 +355,31 @@ const Students = () => {
               <div className="flex justify-end">
                 <button
                   type="button"
-                  className="py-2 px-4 bg-gray-300 rounded-lg mr-2"
                   onClick={() => {
                     setEditMode(false);
                     setAddMode(false);
                   }}
+                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="py-2 px-4 bg-[#C5D86D] text-black rounded-lg"
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2"
                 >
-                  Save
+                  {editMode ? "Update" : "Save"}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+      <ConfirmationDialog
+        isOpen={showConfirmation}
+        message="Are you sure you want to delete this student?"
+        onCancel={() => setShowConfirmation(false)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 };

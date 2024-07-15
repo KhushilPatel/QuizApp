@@ -1,25 +1,45 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import Modal from "react-modal";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import QuestionBankList from "@/components/Admin/Question-Bank/ExistingQb";
 import { IoMdAddCircle } from "react-icons/io";
 import { ImCross } from "react-icons/im";
+
+// Define the schema using Zod
+const questionBankSchema = z.object({
+  title: z.string().min(2, { message: "*Title is required" }),
+  description: z.string().min(3, { message: "*Description is required" }),
+  time: z.string().min(1, { message: "*Time must be selected" }),
+});
+
 const QuestionBankModule = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [time, setTime] = useState("");
   const router = useRouter();
 
-  const openModal = () => setIsModalOpen(true);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(questionBankSchema),
+  });
+
+  const openModal = () => {
+    setIsModalOpen(true);
+    reset(); // Reset the form values when the modal opens
+  };
+
   const closeModal = () => setIsModalOpen(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const onSubmit = (data) => {
     closeModal();
     router.push({
       pathname: "/admin/question-bank/add",
-      query: { title, description, time },
+      query: data,
     });
   };
 
@@ -27,9 +47,7 @@ const QuestionBankModule = () => {
     <div className="flex mx-auto">
       <div className="w-full border-2 rounded-2xl p-5">
         <div className="flex gap-[500px]">
-          <h2 className="text-3xl font-bold text-center mb-8">
-            Question Banks
-          </h2>
+          <h2 className="text-3xl font-bold text-center mb-8">Question Banks</h2>
           <div
             onClick={openModal}
             className="bg-[#C5D86D] hover:bg-black hover:text-white gap-3 text-black px-4 py-2  flex w-[270px] h-[45px] rounded-xl border-2 items-center cursor-pointer mx-auto mb-8"
@@ -37,7 +55,6 @@ const QuestionBankModule = () => {
             <div>
               <IoMdAddCircle className="text-2xl" />
             </div>
-
             <h2 className="text-lg font-semibold text-center truncate">
               Create Question Bank
             </h2>
@@ -54,67 +71,51 @@ const QuestionBankModule = () => {
         className="modal"
         overlayClassName="overlay"
       >
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex justify-between">
-            <h2 className="text-lg font-semibold mb-2">
-              Set up a new question bank
-            </h2>
+            <h2 className="text-lg font-semibold mb-2">Set up a new question bank</h2>
             <div className="flex items-center justify-end">
               <button
                 type="button"
                 onClick={closeModal}
                 className="border-l py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               >
-                <ImCross className="size-5  font-extrabold text-3xl text-red-700" />
+                <ImCross className="size-5 font-extrabold text-3xl text-red-700" />
               </button>
             </div>
           </div>
           <hr />
           <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="title"
-            >
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
               Title
             </label>
             <input
               id="title"
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              {...register("title")}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
             />
+            {errors.title && <p className="text-red-500">{errors.title.message}</p>}
           </div>
           <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="description"
-            >
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
               Description
             </label>
             <textarea
               id="description"
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              {...register("description")}
               className="shadow min-h-10 max-h-24 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
             />
+            {errors.description && <p className="text-red-500">{errors.description.message}</p>}
           </div>
           <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="time"
-            >
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="time">
               Time (in mins)
             </label>
             <select
               id="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
+              {...register("time")}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
             >
               <option value="">Select time</option>
               {[...Array(20).keys()].map((n) => (
@@ -123,6 +124,7 @@ const QuestionBankModule = () => {
                 </option>
               ))}
             </select>
+            {errors.time && <p className="text-red-500">{errors.time.message}</p>}
           </div>
           <div className="flex justify-end">
             <button

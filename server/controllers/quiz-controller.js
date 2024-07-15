@@ -2,15 +2,15 @@ const Quiz = require('../models/quiz-model');
 
 
 exports.createQuiz = async (req, res) => {
-  const { questionBank, quizName, duration, score, description } = req.body;
-  console.log(req.body)
+  const { questionBank, quizName, score, description,createdAt } = req.body;
+  console.log("create",req.body)
   try {
     const newQuiz = new Quiz({
       questionBank,
       quizName,
-      duration,
       score,
       description,
+      createdAt
     });
 
     const savedQuiz = await newQuiz.save();
@@ -47,12 +47,12 @@ exports.getQuizById = async (req, res) => {
 
 exports.updateQuiz = async (req, res) => {
   const { id } = req.params;
-  const { questionBank, title, time, score, description } = req.body;
-
+  const { questionBank, quizName, score, description } = req.body;
+  console.log("update",req.body)
   try {
     const updatedQuiz = await Quiz.findByIdAndUpdate(
       id,
-      { questionBank, title, time, score, description },
+      {  questionBank, quizName, score, description },
       { new: true, runValidators: true }
     );
 

@@ -1,4 +1,3 @@
-// components/ConfirmationDialog.js
 
 import React from 'react';
 

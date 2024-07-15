@@ -1,46 +1,111 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { ImCross } from "react-icons/im";
 import axios from "axios";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-const ModalComponent = ({ isOpen, onRequestClose, questionBanks, router }) => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [time, setTime] = useState("");
-  const [score, setScore] = useState("");
-  const [createdAt, setCreatedAt] = useState("");
-  const [selectedQuestionBank, setSelectedQuestionBank] = useState("");
+const quizSchema = z.object({
+  title: z.string().min(1, "*Title is required"),
+  description: z.string().optional(),
+  score: z.string().min(1, "*Score per question is required"),
+  createdAt: z.string(),
+  questionBank: z.string().min(1, "*Question bank is required"),
+});
+
+const CreateOrEditQuiz = ({ isOpen, onRequestClose, router, quizId, onEditSuccess }) => {
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [questionBanks, setQuestionBanks] = useState([]);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(quizSchema),
+  });
 
   useEffect(() => {
     const currentDateTime = new Date();
-    const formattedDateTime = currentDateTime.toISOString().slice(0, 16);
-    setCreatedAt(formattedDateTime);
-  }, []);
+    const formattedDateTime = currentDateTime.toString().slice(0, 16);
+    setValue("createdAt", formattedDateTime);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (quizId) {
+      fetchQuiz();
+      setIsEditMode(true);
+    } else {
+      resetForm();
+      setIsEditMode(false);
+    }
+
+    fetchQuestionBanks(); // Fetch question banks on component mount
+  }, [quizId]);
+
+  const resetForm = () => {
+    reset({
+      title: "",
+      description: "",
+      score: "",
+      createdAt: new Date().toString().slice(0, 16),
+      questionBank: "",
+    });
+  };
+
+  const fetchQuiz = async () => {
+    try {
+      const response = await axios.get(`http://localhost:4000/api/quizzes/${quizId}`);
+      const { quizName, questionBank, score, description, createdAt } = response.data;
+      setValue("title", quizName);
+      setValue("questionBank", questionBank?._id); // Ensure to check for existence of questionBank
+      setValue("score", score);
+      setValue("description", description);
+      setValue("createdAt", createdAt.toString().slice(0, 16));
+    } catch (error) {
+      console.error("Error fetching quiz:", error);
+    }
+  };
+
+  const fetchQuestionBanks = async () => {
+    try {
+      const response = await axios.get("http://localhost:4000/api/questionBanks");
+      setQuestionBanks(response.data);
+      console.log("questionBanks",questionBanks)
+    } catch (error) {
+      console.error("Error fetching question banks:", error);
+    }
+  };
+
+  const onSubmit = async (data) => {
     onRequestClose();
-
     const quizData = {
-      questionBank: selectedQuestionBank,
-      quizName: title,
-      duration: time,
-      score,
-      description,
+      questionBank: data.questionBank,
+      quizName: data.title,
+      score: data.score,
+      description: data.description,
+      createdAt: data.createdAt,
     };
 
     try {
-      const res = await axios.post(
-        "http://localhost:4000/api/quizzes",
-        quizData
-      );
-      console.log("newdata", res.data);
-      router.push({
-        pathname: "/admin/quizzes",
-        query: { title, description, time, score, createdAt },
-      });
+      if (isEditMode) {
+        await axios.put(`http://localhost:4000/api/quizzes/${quizId}`, quizData);
+        onEditSuccess();
+      } else {
+        const res = await axios.post("http://localhost:4000/api/quizzes", quizData);
+        router.push({
+          pathname: "/admin/quizzes",
+          query: {
+            title: data.title,
+            description: data.description,
+            score: data.score,
+            createdAt: data.createdAt,
+          },
+        });
+        window.location.reload();
+      }
     } catch (error) {
-      console.error("Error creating quiz:", error);
+      console.error(`Error ${isEditMode ? 'updating' : 'creating'} quiz:`, error);
     }
   };
 
@@ -48,14 +113,14 @@ const ModalComponent = ({ isOpen, onRequestClose, questionBanks, router }) => {
     <Modal
       isOpen={isOpen}
       onRequestClose={onRequestClose}
-      contentLabel="Create Question Bank"
+      contentLabel={isEditMode ? "Edit Quiz" : "Create Quiz"}
       ariaHideApp={false}
       className="modal"
       overlayClassName="overlay"
     >
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold mb-2">Set up a new quiz</h2>
+          <h2 className="text-lg font-semibold mb-2">{isEditMode ? "Edit Quiz" : "Set up a new quiz"}</h2>
           <button
             type="button"
             onClick={onRequestClose}
@@ -65,46 +130,24 @@ const ModalComponent = ({ isOpen, onRequestClose, questionBanks, router }) => {
           </button>
         </div>
         <hr />
-        <div className="mb-4 mt-2 relative box-content">
+        <div className="mb-1 mt-2 relative">
           <label
-            className="block text-gray-700 bg-[#FFEDDF] ml-[1px] rounded-lg w-[100px] h-full text-sm absolute left-0 font-bold pt-2 pl-2"
+            className="text-gray-700 bg-[#FFEDDF] ml-[1px] rounded-lg w-[100px] h-full text-sm absolute left-0 font-bold pt-2 pl-2"
             htmlFor="title"
           >
             Title:
           </label>
           <input
             id="title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            {...register("title")}
             className="shadow appearance-none border rounded-lg w-full py-2 px-3 pl-[110px] text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            required
           />
         </div>
-        <div className="flex gap-5">
-          <div className="mb-4 relative w-[280px]">
-            <label
-              className="block text-gray-700 bg-[#FFEDDF] ml-[1px] rounded-lg w-[185px] h-full text-sm absolute left-0 font-bold pt-2 pl-2"
-              htmlFor="time"
-            >
-              Duration (in minutes):
-            </label>
-            <select
-              id="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 pl-[200px] px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
-            >
-              {[...Array(20).keys()].map((n) => (
-                <option key={n + 1} value={n + 1}>
-                  {n + 1}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="mb-4 relative w-[280px]">
+        {errors.title && (
+          <p className="text-red-500 text-xs mb-3 mt-0">{errors.title.message}</p>
+        )}
+        <div className="flex mt-4 gap-5">
+          <div className="relative w-[380px]">
             <label
               className="block text-gray-700 bg-[#FFEDDF] ml-[1px] rounded-lg w-[185px] h-full text-sm absolute left-0 font-bold pt-2 pl-2"
               htmlFor="score"
@@ -113,11 +156,10 @@ const ModalComponent = ({ isOpen, onRequestClose, questionBanks, router }) => {
             </label>
             <select
               id="score"
-              value={score}
-              onChange={(e) => setScore(e.target.value)}
+              {...register("score")}
               className="shadow appearance-none border rounded w-full py-2 pl-[200px] px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
             >
+              <option value="">Select score</option>
               {[...Array(20).keys()].map((n) => (
                 <option key={n + 1} value={n + 1}>
                   {n + 1}
@@ -125,8 +167,11 @@ const ModalComponent = ({ isOpen, onRequestClose, questionBanks, router }) => {
               ))}
             </select>
           </div>
+          {errors.score && (
+            <p className="text-red-500 text-xs mt-1">{errors.score.message}</p>
+          )}
         </div>
-        <div className="mb-4 relative">
+        <div className="mt-3 relative">
           <label
             className="block text-gray-700 bg-[#FFEDDF] ml-[1px] rounded-lg w-[185px] h-full text-sm absolute left-0 font-bold pt-3 pl-2"
             htmlFor="description"
@@ -135,13 +180,16 @@ const ModalComponent = ({ isOpen, onRequestClose, questionBanks, router }) => {
           </label>
           <input
             id="description"
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            {...register("description")}
             className="shadow min-h-10 max-h-16 appearance-none border pl-[190px] rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
-        <div className="mb-4 relative w-[470px]">
+        {errors.description && (
+          <p className="text-red-500 text-xs mt-1">
+            {errors.description.message}
+          </p>
+        )}
+        <div className="mt-3 relative w-[470px]">
           <label
             className="block text-gray-700 bg-[#FFEDDF] ml-[1px] rounded-lg w-[110px] h-full text-sm absolute left-0 font-bold pt-3 pl-2"
             htmlFor="createdAt"
@@ -151,17 +199,15 @@ const ModalComponent = ({ isOpen, onRequestClose, questionBanks, router }) => {
           <div className="flex">
             <input
               id="createdAt"
-              type="datetime-local"
-              value={createdAt}
+              {...register("createdAt")}
               disabled
-              className="shadow min-h-10 max-h-16 appearance-none border pl-[120px] rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
+              className="shadow min-h-10 max-h-16 bg-gray-100 cursor-not-allowed border pl-[120px] rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
           </div>
         </div>
         <hr />
         <div className="justify-between flex border-gray-300 pr-4 mt-6">
-          <div className="mb-4 flex w-[380px]">
+          <div className="flex w-[480px]">
             <label
               className="block text-gray-700 ml-[1px] rounded-lg w-[300px] text-sm left-0 font-bold pt-2 pl-2"
               htmlFor="questionBank"
@@ -170,14 +216,12 @@ const ModalComponent = ({ isOpen, onRequestClose, questionBanks, router }) => {
             </label>
             <select
               id="questionBank"
-              value={selectedQuestionBank}
-              onChange={(e) => setSelectedQuestionBank(e.target.value)}
+              {...register("questionBank")}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
             >
               <option value="">Select a question bank</option>
-              {questionBanks.map((bank) => (
-                <option key={bank.id} value={bank._id}>
+              {questionBanks?.map((bank) => (
+                <option key={bank._id} value={bank._id}>
                   {bank.title}
                 </option>
               ))}
@@ -192,9 +236,14 @@ const ModalComponent = ({ isOpen, onRequestClose, questionBanks, router }) => {
             </button>
           </div>
         </div>
+        {errors.questionBank && (
+          <span className="text-red-500 ml-48 text-xs mt-0">
+            {errors.questionBank.message}
+          </span>
+        )}
       </form>
     </Modal>
   );
 };
 
-export default ModalComponent;
+export default CreateOrEditQuiz;

@@ -4,9 +4,9 @@ import { useRouter } from "next/router";
 import "tailwindcss/tailwind.css";
 
 const QuestionBankForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
+  console.log("initial",initialData)
   const router = useRouter();
   const { title: initialTitle, description: initialDescription, time: initialTime, questions: initialQuestions } = initialData;
-
   const [title, setTitle] = useState(initialTitle || "");
   const [description, setDescription] = useState(initialDescription || "");
   const [time, setTime] = useState(initialTime || "");

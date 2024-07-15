@@ -12,7 +12,7 @@ const home = async (req, res) => {
 
 const register = async (req, res) => {
   try {
-    console.log(req.body);
+   
     const { firstName,lastName, email, password,dateOfBirth,gender } = req.body;
 
     const userExists = await User.findOne({ email });
@@ -69,7 +69,7 @@ const login = async (req, res) => {
 const user = async (req, res) => {
   try {
     const userData = req.user;
-    console.log("userData", userData);
+   
     return res.status(200).json({ userData });
   } catch (error) {
     console.log(`error from the user route `);
@@ -94,10 +94,10 @@ const updateUser = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
-  console.log("request", req.params.id);
+
   try {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
-    console.log("deletedUser",deletedUser)
+   
     if (!deletedUser) {
       return res.status(404).json("user not deleted");
     }

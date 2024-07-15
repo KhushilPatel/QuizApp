@@ -4,7 +4,6 @@ import React from 'react';
 const Sidebar = () => {
     const router = useRouter();
 
-    // Function to determine if a route is active
     const isActive = (route) => {
         return router.pathname === route ? ' text-blue-500 ' : 'hover:bg-gray-100';
     };
