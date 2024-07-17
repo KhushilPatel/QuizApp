@@ -3,7 +3,6 @@ import axios from "axios";
 import ConfirmationDialog from "@/components/ui/ConfirmationDialogue";
 import CreateOrEditQuiz from "./CreateQuiz";
 
-
 const QuizList = () => {
   const [quizzes, setQuizzes] = useState([]);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -11,6 +10,7 @@ const QuizList = () => {
   const [quizToEdit, setQuizToEdit] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [loadingQuizId, setLoadingQuizId] = useState(null);
 
   useEffect(() => {
     fetchQuizzes();
@@ -42,7 +42,7 @@ const QuizList = () => {
     axios
       .delete(`http://localhost:4000/api/quizzes/${quiz._id}`)
       .then(() => {
-        setLoading((prev) => !prev); // Trigger reload of quizzes
+        setLoading((prev) => !prev); 
       })
       .catch((err) => {
         console.log(err);
@@ -58,10 +58,29 @@ const QuizList = () => {
     setLoading((prev) => !prev); // Trigger reload of quizzes
     setShowEditDialog(false);
   };
+  const togglePublishState = async (quiz) => {
+    try {
+      setLoadingQuizId(quiz._id);
+      const newState = quiz.state === 'publish' ? 'draft' : 'publish';
+      const updatedQuiz = { ...quiz, state: newState };
+     
+      await axios.put(`http://localhost:4000/api/quizzes/${quiz._id}`, updatedQuiz);
+      
+      const updatedQuizzes = quizzes.map(q => 
+        q._id === quiz._id ? updatedQuiz : q
+      );
+      setQuizzes(updatedQuizzes);
+    } catch (error) {
+      console.error("Error updating quiz state:", error);
+     
+    } finally {
+      setLoadingQuizId(null);
+    }
+  };
 
   return (
     <div className="w-[1130px] rounded-xl">
-      <div className="overflow-x-auto border-collapse border rounded-xl">
+      <div className="overflow-x-auto  border-collapse border rounded-xl">
         <table className="min-w-full bg-white">
           <thead className="bg-[#0D1321] text-white">
             <tr>
@@ -71,6 +90,7 @@ const QuizList = () => {
               <th className="py-2 px-4 border-b border-r text-center">Description</th>
               <th className="py-2 px-4 border-b border-r text-center">Created At</th>
               <th className="py-2 px-4 border-b border-r text-center">Actions</th>
+              <th className="py-2 px-4 border-b border-r text-center">Active</th>
             </tr>
           </thead>
           <tbody>
@@ -81,7 +101,7 @@ const QuizList = () => {
                 <td className="py-1 px-4 border-b border-r text-center">{quiz.score}</td>
                 <td className="py-1 px-4 border-b border-r text-center">{quiz.description}</td>
                 <td className="py-1 px-4 border-b border-r text-center">{quiz.createdAt.toString().slice(0, 16)}</td>
-                <td className="py-1 flex gap-2 px-4 border-b border-r text-center">
+                <td className="py-1 flex gap-2 pl-6 border-b border-r text-center">
                   <button
                     className="py-2 bg-[#C5D86D] w-[75px] h-[40px] rounded-2xl flex items-center justify-center"
                     onClick={() => handleEdit(quiz)}
@@ -101,6 +121,21 @@ const QuizList = () => {
                     onCancel={() => setShowConfirmation(false)}
                     onConfirm={handleConfirmDelete}
                   />
+                </td>
+                <td className="py-1 px-4 border-b border-r text-center">
+                <button
+                    className={`px-4 ${
+                      quiz.state === 'publish' ? 'bg-green-500' : 'bg-yellow-500'
+                    } w-[75px] h-[35px] rounded-xl transition-colors duration-300`}
+                    onClick={() => togglePublishState(quiz)}
+                    disabled={loadingQuizId === quiz._id}
+                  >
+                    {loadingQuizId === quiz._id ? (
+                      <span className="animate-spin">⟳</span>
+                    ) : (
+                      quiz.state === 'publish' ? 'Publish' : 'Draft'
+                    )}
+                  </button>
                 </td>
               </tr>
             ))}

@@ -13,9 +13,10 @@ const AdminRoute = ({ children }) => {
     if (!user && !loading) {
       router.push('/signIn'); // Redirect to sign-in page if not authenticated
       toast("Please sign in first");
-    } else if (user && !user.isAdmin) {
-      router.push('/not-authorized'); // Redirect to a "not authorized" page or any other page
-    }
+    } 
+    // else if (user && !user.isAdmin) {
+    //   router.push('/not-authorized'); // Redirect to a "not authorized" page or any other page
+    // }
   }, [user, loading, router]);
 
   if (loading) {

@@ -47,12 +47,12 @@ exports.getQuizById = async (req, res) => {
 
 exports.updateQuiz = async (req, res) => {
   const { id } = req.params;
-  const { questionBank, quizName, score, description } = req.body;
+  const { questionBank, quizName, score, description,state } = req.body;
   console.log("update",req.body)
   try {
     const updatedQuiz = await Quiz.findByIdAndUpdate(
       id,
-      {  questionBank, quizName, score, description },
+      {  questionBank, quizName, score, description,state },
       { new: true, runValidators: true }
     );
 

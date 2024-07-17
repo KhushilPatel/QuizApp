@@ -1,40 +1,46 @@
 import { useRouter } from 'next/router';
-import Layout from '../components/Layout';
 import '../styles/globals.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { UserProvider } from '@/context/UserContext';
 
-  
+import UserLayout from '@/components/User/UserLayout';
+
+import AdminRoute from '@/components/Admin/AdminRoute';
+import UserRoute from '@/components/User/UserRoute';
+import AdminLayout from '@/components/Admin/AdminLayout';
 
 function App({ Component, pageProps }) {
   const router = useRouter();
-  //This array lists the routes where you don't want to use the Layout component.Means where i don't want navbar and sidebar
   const noLayoutRoutes = ['/signUp', '/signIn', '/admin/question-bank/add', '/admin/question-bank/edit/[id]'];
 
-  const shouldRenderWithLayout = !noLayoutRoutes.includes(router.pathname);
+  const getLayout = () => {
+    if (noLayoutRoutes.includes(router.pathname)) {
+      return <Component {...pageProps} />;
+    } else if (router.pathname.startsWith('/admin')) {
+      return (
+        <AdminRoute>
+          <AdminLayout>
+            <Component {...pageProps} />
+          </AdminLayout>
+        </AdminRoute>
+      );
+    } else if (router.pathname.startsWith('/user')) {
+      return (
+        <UserRoute>
+          <UserLayout>
+            <Component {...pageProps} />
+          </UserLayout>
+        </UserRoute>
+      );
+    }
+    return <Component {...pageProps} />;
+  };
 
   return (
     <UserProvider>
-      
-    <>
-      {shouldRenderWithLayout ? (
-        <Layout>
-        
-              <Component {...pageProps} />
-              <ToastContainer position="top-center" autoClose={5000} />
-         
-        </Layout>
-      ) : (
-     
-        <div>
-
-          <Component {...pageProps} />
-          <ToastContainer position="top-center" autoClose={5000} />
-        </div>
-      )}
-    </>
-
+      {getLayout()}
+      <ToastContainer position="top-center" autoClose={5000} />
     </UserProvider>
   );
 }

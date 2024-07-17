@@ -1,15 +1,14 @@
-
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { IoIosMail } from "react-icons/io";
 import { FaBell } from "react-icons/fa";
 import Cookies from 'js-cookie';
+import { useUser } from "@/context/UserContext";
 
-
-import { toast } from "react-toastify";
 const Navbar = () => {
-  const userName = "KhushilPatel";
+  const { user } = useUser();
+  const userName = user?.firstName +" "+user?.lastName;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const router = useRouter();
 
@@ -30,7 +29,8 @@ const Navbar = () => {
   const handleLogout = () => {
     Cookies.remove('auth', { path: '/' });
     window.location.href = "/signIn";
-  }
+  };
+
   return (
     <nav className="bg-white flex items-center justify-between h-16 border-b-2">
       <div className="flex items-center ml-20">
@@ -48,13 +48,15 @@ const Navbar = () => {
 
       <div className="flex items-center space-x-6 mr-4">
         <ul className="flex space-x-6">
-          <li className="flex items-center hover:bg-gray-100 cursor-pointer">
+          <li className="flex items-center  cursor-pointer" onClick={()=>router.push(user?.isAdmin ? "/admin/quizzes" : "/user/quizzes")}>
+            {/* <a href={user.isAdmin ? "/admin/quizzes" : "/user/quizzes"} className="flex"> */}
             <img
-              src="/images/newquiz.png"
-              alt="Dashboard Icon"
+              src={ "/images/newquiz.png" }
+              alt="Quizzes Icon"
               className="w-6 h-6 mr-3"
             />
-            <a href="/admin/quizzes">New Quizzes</a>
+              {user?.isAdmin ? "New Quizzes" : "Join Quizzes"}
+            {/* </a> */}
           </li>
           <li className="flex items-center hover:bg-gray-100 cursor-pointer">
             <a href="/contact">

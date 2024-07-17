@@ -5,7 +5,8 @@ const quizSchema = new mongoose.Schema({
   quizName: { type: String, required: true },
   score: { type: String, required: true },
   description: { type: String, required: false },
-  createdAt: { type: String }
+  createdAt: { type: String },
+  state: { type: String, default: 'Draft' },
 }, { timestamps: true });
 
 const Quiz = mongoose.model('Quiz', quizSchema);

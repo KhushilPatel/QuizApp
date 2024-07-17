@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { IoMdAddCircle } from "react-icons/io";
 import { useRouter } from "next/router";
-import ModalComponent from "@/components/Admin/Quizzes/CreateQuiz";
+import CreateQuiz from "@/components/Admin/Quizzes/CreateQuiz";
 import QuizList from "@/components/Admin/Quizzes/ExistingQuizzes";
 import AdminRoute from "@/components/Admin/AdminRoute";
 
@@ -47,7 +47,7 @@ const QuizComponent = () => {
         </div>
       </div>
 
-      <ModalComponent
+      <CreateQuiz
         isOpen={isModalOpen}
         onRequestClose={closeModal}
         questionBanks={questionBanks}

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
@@ -8,17 +8,29 @@ import { useUser } from '@/context/UserContext';
 
 export default function SignIn() {
 
+  const { user, loading } = useUser();
+  console.log("object",user)
+const router = useRouter();
+
+useEffect(() => {
+  if (!loading && user) {
+    if (user?.isAdmin) {
+      router.push('/admin/dashboard');
+    } else {
+      router.push('/user/dashboard');
+    }
+  }
+}, [user, loading, router]);
+
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-  const router = useRouter();
 
-
+  console.log("useeeer",user)
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -32,14 +44,14 @@ export default function SignIn() {
       });
       const res_data = await response.json();
       if (response.ok) {
-        Cookies.set( 'auth', res_data.token, { expires: 7, path: '/' });
-        
-        window.location.href = "/admin/dashboard";
+        Cookies.set('auth', res_data.token, { expires: 7, path: '/' });
         setFormData({
           email: "",
           password: "",
         });
         toast.success("Login Successful");
+        router.reload()
+        
       } else {
         toast.error(res_data.extraDetails ? res_data.extraDetails : res_data.message);
       }
@@ -47,9 +59,17 @@ export default function SignIn() {
       console.log("login", error);
     }
   };
-
   return (
-    <div className="min-h-screen flex bg-[#0D1321] ">
+    <>
+    
+    {loading ? (
+      <div>Loading...</div>
+    ) : user ? (
+      <div>Redirecting...</div>
+    ) : (
+      
+      <div className="min-h-screen flex bg-[#0D1321] ">
+  
       <div className="flex absolute m-14 ml-24 mt-24">
         <img src="/images/logo.png" alt="Logo" className="w-30 h-12 " />
       </div>
@@ -96,6 +116,8 @@ export default function SignIn() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    )}
+    </>
   );
 }

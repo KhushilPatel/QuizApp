@@ -1,11 +1,11 @@
 import React from 'react'
 
-const results = () => {
+const index = () => {
   return (
     <div>
-     Admin Results
+     User Result
     </div>
   )
 }
 
-export default results
+export default index

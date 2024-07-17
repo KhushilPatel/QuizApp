@@ -38,25 +38,8 @@ export const UserProvider = ({ children }) => {
     fetchUser();
   }, []);
 
-  const login = async (email, password) => {
-    try {
-      const response = await axios.post('http://localhost:4000/api/auth/login', { email, password });
-      const { token } = response.data;
-      setToken(token); // Store token in localStorage or sessionStorage
-      setUser(response.data.userData);
-    } catch (error) {
-      console.error('Login error:', error);
-      setUser(null);
-    }
-  };
-
-  const logout = () => {
-    removeToken(); // Clear token from storage
-    setUser(null);
-  };
-
   return (
-    <UserContext.Provider value={{ user, login, logout, loading }}>
+    <UserContext.Provider value={{ user,  loading }}>
       {children}
     </UserContext.Provider>
   );
