@@ -1,40 +1,65 @@
-import React, { useState, useEffect } from "react";
+import React, { useReducer, useEffect } from "react";
 import axios from "axios";
 import ConfirmationDialog from "@/components/ui/ConfirmationDialogue";
 import CreateOrEditQuiz from "./CreateQuiz";
 
+const initialState = {
+  quizzes: [],
+  showConfirmation: false,
+  quizToDelete: null,
+  quizToEdit: null,
+  loading: false,
+  showEditDialog: false,
+  loadingQuizId: null,
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "SET_QUIZZES":
+      return { ...state, quizzes: action.payload };
+    case "SHOW_CONFIRMATION":
+      return { ...state, showConfirmation: true, quizToDelete: action.payload };
+    case "HIDE_CONFIRMATION":
+      return { ...state, showConfirmation: false, quizToDelete: null };
+    case "SET_LOADING":
+      return { ...state, loading: action.payload };
+    case "SET_LOADING_QUIZ_ID":
+      return { ...state, loadingQuizId: action.payload };
+    case "SET_QUIZ_TO_EDIT":
+      return { ...state, quizToEdit: action.payload, showEditDialog: true };
+    case "HIDE_EDIT_DIALOG":
+      return { ...state, showEditDialog: false, quizToEdit: null };
+    case "TOGGLE_LOADING":
+      return { ...state, loading: !state.loading };
+    default:
+      return state;
+  }
+};
+
 const QuizList = () => {
-  const [quizzes, setQuizzes] = useState([]);
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [quizToDelete, setQuizToDelete] = useState(null);
-  const [quizToEdit, setQuizToEdit] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [loadingQuizId, setLoadingQuizId] = useState(null);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
     fetchQuizzes();
-  }, [loading]);
+  }, [state.loading]);
 
   const fetchQuizzes = async () => {
     try {
       const response = await axios.get("http://localhost:4000/api/quizzes");
-      setQuizzes(response.data);
+      dispatch({ type: "SET_QUIZZES", payload: response.data });
     } catch (error) {
       console.error("Error fetching quizzes:", error);
     }
   };
 
   const confirmDelete = (quiz) => {
-    setQuizToDelete(quiz);
-    setShowConfirmation(true);
+    dispatch({ type: "SHOW_CONFIRMATION", payload: quiz });
   };
 
   const handleConfirmDelete = () => {
-    if (quizToDelete) {
-      handleDelete(quizToDelete);
-      setQuizToDelete(null);
-      setShowConfirmation(false);
+    if (state.quizToDelete) {
+      handleDelete(state.quizToDelete);
+      dispatch({ type: "HIDE_CONFIRMATION" });
     }
   };
 
@@ -42,7 +67,7 @@ const QuizList = () => {
     axios
       .delete(`http://localhost:4000/api/quizzes/${quiz._id}`)
       .then(() => {
-        setLoading((prev) => !prev); 
+        dispatch({ type: "TOGGLE_LOADING" });
       })
       .catch((err) => {
         console.log(err);
@@ -50,31 +75,30 @@ const QuizList = () => {
   };
 
   const handleEdit = (quiz) => {
-    setQuizToEdit(quiz);
-    setShowEditDialog(true);
+    dispatch({ type: "SET_QUIZ_TO_EDIT", payload: quiz });
   };
 
   const handleEditSuccess = () => {
-    setLoading((prev) => !prev); // Trigger reload of quizzes
-    setShowEditDialog(false);
+    dispatch({ type: "TOGGLE_LOADING" });
+    dispatch({ type: "HIDE_EDIT_DIALOG" });
   };
+
   const togglePublishState = async (quiz) => {
     try {
-      setLoadingQuizId(quiz._id);
-      const newState = quiz.state === 'publish' ? 'draft' : 'publish';
+      dispatch({ type: "SET_LOADING_QUIZ_ID", payload: quiz._id });
+      const newState = quiz.state === "publish" ? "draft" : "publish";
       const updatedQuiz = { ...quiz, state: newState };
-     
+
       await axios.put(`http://localhost:4000/api/quizzes/${quiz._id}`, updatedQuiz);
-      
-      const updatedQuizzes = quizzes.map(q => 
+
+      const updatedQuizzes = state.quizzes.map((q) =>
         q._id === quiz._id ? updatedQuiz : q
       );
-      setQuizzes(updatedQuizzes);
+      dispatch({ type: "SET_QUIZZES", payload: updatedQuizzes });
     } catch (error) {
       console.error("Error updating quiz state:", error);
-     
     } finally {
-      setLoadingQuizId(null);
+      dispatch({ type: "SET_LOADING_QUIZ_ID", payload: null });
     }
   };
 
@@ -94,7 +118,7 @@ const QuizList = () => {
             </tr>
           </thead>
           <tbody>
-            {quizzes.map((quiz) => (
+            {state.quizzes.map((quiz) => (
               <tr key={quiz._id}>
                 <td className="py-1 px-4 border-b border-r text-center">{quiz.quizName}</td>
                 <td className="py-1 px-4 border-b border-r text-center">{quiz.questionBank.title}</td>
@@ -116,24 +140,24 @@ const QuizList = () => {
                   </button>
                   <ConfirmationDialog
                     key={`confirmation-${quiz._id}`}
-                    isOpen={showConfirmation && quizToDelete && quizToDelete._id === quiz._id}
+                    isOpen={state.showConfirmation && state.quizToDelete && state.quizToDelete._id === quiz._id}
                     message="Are you sure you want to delete this quiz?"
-                    onCancel={() => setShowConfirmation(false)}
+                    onCancel={() => dispatch({ type: "HIDE_CONFIRMATION" })}
                     onConfirm={handleConfirmDelete}
                   />
                 </td>
                 <td className="py-1 px-4 border-b border-r text-center">
-                <button
+                  <button
                     className={`px-4 ${
-                      quiz.state === 'publish' ? 'bg-green-500' : 'bg-yellow-500'
+                      quiz.state === "publish" ? "bg-green-500" : "bg-yellow-500"
                     } w-[75px] h-[35px] rounded-xl transition-colors duration-300`}
                     onClick={() => togglePublishState(quiz)}
-                    disabled={loadingQuizId === quiz._id}
+                    disabled={state.loadingQuizId === quiz._id}
                   >
-                    {loadingQuizId === quiz._id ? (
+                    {state.loadingQuizId === quiz._id ? (
                       <span className="animate-spin">⟳</span>
                     ) : (
-                      quiz.state === 'publish' ? 'Publish' : 'Draft'
+                      quiz.state === "publish" ? "Publish" : "Draft"
                     )}
                   </button>
                 </td>
@@ -142,12 +166,12 @@ const QuizList = () => {
           </tbody>
         </table>
       </div>
-      {quizToEdit && (
+      {state.quizToEdit && (
         <CreateOrEditQuiz
-          key={`edit-${quizToEdit._id}`}
-          isOpen={showEditDialog}
-          onRequestClose={() => setShowEditDialog(false)}
-          quizId={quizToEdit._id}
+          key={`edit-${state.quizToEdit._id}`}
+          isOpen={state.showEditDialog}
+          onRequestClose={() => dispatch({ type: "HIDE_EDIT_DIALOG" })}
+          quizId={state.quizToEdit._id}
           onEditSuccess={handleEditSuccess}
         />
       )}

@@ -12,7 +12,7 @@ const Sidebar = () => {
     };
 
     return (
-        <div className="h-[750px] bg-white text-black w-[200px] shadow-lg border-r-2">
+        <div className="h-auto min-h-screen bg-white text-black w-[200px] shadow-lg border-r-2">
             <ul className="mt-6 flex flex-col gap-8">
                 <li
                     className={`flex items-center px-4 py-3 cursor-pointer border-b-2 ${isActive(user?.isAdmin ?'/admin/dashboard':'/user/dashboard')}`}
@@ -22,8 +22,8 @@ const Sidebar = () => {
                     <span className="block text-xl font-medium">Dashboard</span>
                 </li>
                 <li
-                    className={`flex items-center px-4 py-3 cursor-pointer border-b-2 ${isActive(user?.isAdmin ?'/admin/quizzes':'/user/quizzes')}`}
-                    onClick={() => router.push(user.isAdmin ?'/admin/quizzes':'/user/quizzes')}
+                    className={`flex items-center px-4 py-3 cursor-pointer border-b-2 ${isActive(user?.isAdmin ?'/admin/quizzes':'/user/quiz')}`}
+                    onClick={() => router.push(user.isAdmin ?'/admin/quizzes':'/user/quiz')}
                 >
                     <img src="/images/quizzes.png" alt="Quizzes Icon" className="w-[40px] h-[40px] mr-3" />
                     <span className="block text-xl font-medium">Quizzes</span>

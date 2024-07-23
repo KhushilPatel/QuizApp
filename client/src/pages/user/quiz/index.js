@@ -1,9 +1,10 @@
+import UserQuizzes from '@/components/User/Quizzes'
 import React from 'react'
 
 const index = () => {
   return (
     <div>
-      quizzes
+      <UserQuizzes/>
     </div>
   )
 }

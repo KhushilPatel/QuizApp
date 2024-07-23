@@ -1,27 +1,29 @@
-import { Router, useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { motion } from 'framer-motion';
+import { FaBook, FaClipboardCheck, FaSpinner } from 'react-icons/fa';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const UserDashboard = () => {
   const [availableQuizzes, setAvailableQuizzes] = useState([]);
   const [attemptedQuizzes, setAttemptedQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
-    const router=useRouter()
+  
+  const router = useRouter();
+
   useEffect(() => {
     fetchQuizzes();
   }, []);
 
   const fetchQuizzes = async () => {
     try {
-      // Fetch available quizzes
-      const availableResponse = await fetch('http://localhost:4000/api/quizzes');
-      const availableData = await availableResponse.json();
-      setAvailableQuizzes(availableData);
+      const response = await fetch('http://localhost:4000/api/quizzes');
+      const availableData = await response.json();
+      const publishedQuizzes = availableData.filter(quiz => quiz.state === 'publish');
+      setAvailableQuizzes(publishedQuizzes);
 
-      // Fetch attempted quizzes
-    //   const attemptedResponse = await fetch('http://localhost:4000/api/quizzes/attempted');
-    //   const attemptedData = await attemptedResponse.json();
-    const attemptedData = [
+      const attemptedData = [
         {
           _id: "quiz123",
           title: "JavaScript Basics",
@@ -56,51 +58,129 @@ const UserDashboard = () => {
     }
   };
 
-  const QuizCard = ({ quiz, isAttempted }) => (
-    <div className="bg-white shadow-md rounded-lg p-4 mb-4">
-      <h3 className="text-lg font-semibold mb-2">{quiz.title}</h3>
-      <p className="text-sm text-gray-600 mb-2">{quiz.description}</p>
+  const QuizCard = ({ quiz }) => (
+    <motion.div
+      className="bg-white shadow-md rounded-lg p-4 transition-all hover:shadow-lg border border-gray-300"
+      whileHover={{ scale: 1.02 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <h3 className="text-lg font-bold mb-2 text-gray-800">{quiz.quizName ? quiz.quizName : quiz.title}</h3>
+      <p className="text-sm text-gray-600 mb-3">{quiz.description}</p>
       <div className="flex justify-between items-center">
-        <span className="text-sm text-gray-500">{quiz.questionCount} questions</span>
-        {isAttempted ? (
-          <span className="text-sm font-medium text-green-600">Score: {quiz.score}%</span>
-        ) : (
-          <button 
-            className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold py-2 px-4 rounded"
-            onClick={() => {/* Handle starting the quiz */}}
-          >
-            Start Quiz
-          </button>
-        )}
+        <span className="text-xs text-gray-500 flex items-center">
+          <FaBook className="mr-1" />
+          {quiz.questionCount || quiz?.questionBank?.questions.length} questions
+        </span>
+        <button
+          className="bg-[#C5D86D] text-black text-xs font-bold py-1 px-3 rounded-full transition-colors duration-300 flex items-center"
+          onClick={() => router.push(`/user/quiz/${quiz._id}`)}
+        >
+          Start Quiz
+          <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
       </div>
+    </motion.div>
+  );
+
+  const AttemptedQuizzesTable = () => (
+    <div className="overflow-x-auto mt-8">
+      <table className="min-w-full bg-white border border-gray-300 shadow-md rounded-lg">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="py-2 px-3 text-left text-gray-700 font-semibold">Quiz Title</th>
+            <th className="py-2 px-3 text-left text-gray-700 font-semibold">Questions</th>
+            <th className="py-2 px-3 text-left text-gray-700 font-semibold">Score</th>
+            <th className="py-2 px-3 text-left text-gray-700 font-semibold">Date Taken</th>
+          </tr>
+        </thead>
+        <tbody>
+          {attemptedQuizzes.map((quiz) => (
+            <tr key={quiz._id} className="border-t border-gray-200 hover:bg-gray-50">
+              <td className="py-2 px-3 text-gray-800">{quiz.title}</td>
+              <td className="py-2 px-3 text-gray-600">{quiz.questionCount}</td>
+              <td className="py-2 px-3 text-green-600 font-medium">{quiz.score}%</td>
+              <td className="py-2 px-3 text-gray-600">
+                {new Date(quiz.dateTaken).toLocaleDateString()}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 
+  const PerformanceChart = () => {
+    const chartData = attemptedQuizzes.map(quiz => ({
+      name: quiz.title,
+      score: quiz.score
+    }));
+
+    return (
+      <div className="bg-white shadow-lg rounded-lg p-6 mb-8">
+        <h3 className="text-xl font-semibold mb-4 text-gray-700">Performance Overview</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="score" stroke="#8884d8" activeDot={{ r: 8 }} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  };
+
   if (loading) {
-    return <div className="text-center mt-8">Loading quizzes...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <FaSpinner className="animate-spin text-4xl text-blue-600" />
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">User Dashboard</h1>
-      <div className="flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-1/2">
-          <h2 className="text-2xl font-semibold mb-4">Available Quizzes</h2>
-          {availableQuizzes.slice(0, 3).map((quiz) => (
-            <QuizCard key={quiz._id} quiz={quiz} isAttempted={false} />
-          ))}
-          {availableQuizzes.length > 3 && (
-            <button className="text-blue-500 hover:text-blue-600" onClick={()=>router.push('quizzes')}>
-              View all available quizzes
-            </button>
-          )}
-        </div>
-        <div className="w-full md:w-1/2">
-          <h2 className="text-2xl font-semibold mb-4">Attempted Quizzes</h2>
-          {attemptedQuizzes.map((quiz) => (
-            <QuizCard key={quiz._id} quiz={quiz} isAttempted={true} />
+    <div className="w-[1200px] mx-auto px-4 py-8 bg-gray-50">
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">User Dashboard</h1>
+      
+      <div>
+        <h2 className="text-xl font-semibold mb-4 text-gray-800 flex items-center">
+          <FaBook className="mr-2 text-blue-600" />
+          Available Quizzes
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {availableQuizzes.slice(0, 4).map((quiz) => (
+            <QuizCard key={quiz._id} quiz={quiz} />
           ))}
         </div>
+
+        {availableQuizzes.length > 4 && (
+          <motion.button
+            className="text-blue-600 hover:text-blue-700 font-semibold mt-4 flex items-center"
+            onClick={() => router.push('/user/quiz')}
+            whileHover={{ scale: 1.05 }}
+          >
+            View all available quizzes
+            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </motion.button>
+        )}
+      </div>
+
+      <div className="mt-12">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800 flex items-center">
+          <FaClipboardCheck className="mr-2 text-green-600" />
+          Attempted Quizzes
+        </h2>
+        
+        <PerformanceChart />
+        
+        <AttemptedQuizzesTable />
       </div>
     </div>
   );

@@ -48,7 +48,7 @@ const Navbar = () => {
 
       <div className="flex items-center space-x-6 mr-4">
         <ul className="flex space-x-6">
-          <li className="flex items-center  cursor-pointer" onClick={()=>router.push(user?.isAdmin ? "/admin/quizzes" : "/user/quizzes")}>
+          <li className="flex items-center  cursor-pointer" onClick={()=>router.push(user?.isAdmin ? "/admin/quizzes" : "/user/quiz")}>
             {/* <a href={user.isAdmin ? "/admin/quizzes" : "/user/quizzes"} className="flex"> */}
             <img
               src={ "/images/newquiz.png" }
