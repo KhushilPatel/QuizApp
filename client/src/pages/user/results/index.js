@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '@/context/UserContext';
-import { toast } from 'react-toastify';
-import { motion } from 'framer-motion';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Card, Table, Tag, Skeleton } from 'antd';
-import 'antd/dist/reset.css';  // Make sure to import Ant Design CSS
 
 const UserResults = () => {
   const [attempts, setAttempts] = useState([]);
@@ -27,7 +22,7 @@ const UserResults = () => {
       setAttempts(data);
     } catch (error) {
       console.error('Error fetching attempted quizzes:', error);
-      toast.error('Failed to load attempted quizzes. Please try again later.');
+      alert('Failed to load attempted quizzes. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -36,113 +31,54 @@ const UserResults = () => {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Skeleton active paragraph={{ rows: 10 }} />
+        <p>Loading...</p>
       </div>
     );
   }
 
-  const overallPerformanceData = attempts.map(attempt => {
-    const correctAnswers = attempt.answers.filter(a => a.selectedAnswer.trim().toLowerCase() === 'true').length;
-    const totalQuestions = attempt.answers.length;
-    const percentageScore = (totalQuestions > 0) ? (correctAnswers / totalQuestions) * 100 : 0;
-
-    return {
-      name: attempt.quiz.quizName,
-      score: percentageScore.toFixed(2), // Convert to percentage and format to 2 decimal places
-      correctAnswers,
-      totalQuestions
-    };
-  });
-
   const columns = [
-    {
-      title: 'Quiz Name',
-      dataIndex: 'quizName',
-      key: 'quizName',
-    },
-    {
-      title: 'Score',
-      dataIndex: 'score',
-      key: 'score',
-      render: score => (
-        <Tag color={score >= 70 ? 'success' : score >= 50 ? 'warning' : 'error'}>
-          {score}%
-        </Tag>
-      ),
-    },
-    {
-      title: 'Correct Answers',
-      dataIndex: 'correctAnswers',
-      key: 'correctAnswers',
-    },
-    {
-      title: 'Total Questions',
-      dataIndex: 'totalQuestions',
-      key: 'totalQuestions',
-    },
-    {
-      title: 'Completion Date',
-      dataIndex: 'completedAt',
-      key: 'completedAt',
-      render: date => new Date(date).toLocaleString(),
-    },
+    { title: 'Quiz Name', key: 'quizName', render: (attempt) => attempt.quiz.quizName },
+    { title: 'Score', key: 'score', render: (attempt) => {
+      const correctAnswers = attempt.answers.filter(a => a.selectedAnswer.trim().toLowerCase() === 'true').length;
+      const totalQuestions = attempt.answers.length;
+      const percentageScore = (totalQuestions > 0) ? (correctAnswers / totalQuestions) * 100 : 0;
+      return `${percentageScore.toFixed(2)}%`;
+    }},
+    { title: 'Correct Answers', key: 'correctAnswers', render: (attempt) => attempt.answers.filter(a => a.selectedAnswer.trim().toLowerCase() === 'true').length },
+    { title: 'Total Questions', key: 'totalQuestions', render: (attempt) => attempt.answers.length },
+    { title: 'Completion Date', key: 'completedAt', render: (attempt) => new Date(attempt.completedAt).toLocaleString() },
   ];
 
-  const dataSource = attempts.map(attempt => {
-    const correctAnswers = attempt.answers.filter(a => a.selectedAnswer.trim().toLowerCase() === 'true').length;
-    const totalQuestions = attempt.answers.length;
-    const percentageScore = (totalQuestions > 0) ? (correctAnswers / totalQuestions) * 100 : 0;
-
-    return {
-      key: attempt._id,
-      quizName: attempt.quiz.quizName,
-      score: percentageScore.toFixed(2), // Convert to percentage and format to 2 decimal places
-      correctAnswers,
-      totalQuestions,
-      completedAt: attempt.completedAt,
-    };
-  });
-
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="container mx-auto px-4 py-8 bg-gray-100 min-h-screen"
-    >
+    <div className="w-[1200px] mx-auto px-4 py-8 bg-gray-100 min-h-screen">
       <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">Your Quiz Results</h1>
       
       {attempts.length === 0 ? (
-        <Card className="text-center p-8 shadow-lg border rounded-lg bg-white">
+        <div className="bg-white shadow-lg border rounded-lg p-8 text-center">
           <p className="text-xl text-gray-600">You have not attempted any quizzes yet.</p>
-        </Card>
+        </div>
       ) : (
-        <>
-          <Card className="mb-8 shadow-lg border rounded-lg bg-white p-4">
-            <h2 className="text-2xl font-bold mb-4">Overall Performance</h2>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={overallPerformanceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="score" fill="#8884d8" name="Score (%)" />
-                  <Bar dataKey="correctAnswers" fill="#82ca9d" name="Correct Answers" />
-                  <Bar dataKey="totalQuestions" fill="#ffc658" name="Total Questions" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-
-          <Card className="shadow-lg border rounded-lg bg-white">
-            <h2 className="text-2xl font-bold mb-4">Detailed Results</h2>
-            <Table columns={columns} dataSource={dataSource} pagination={{ pageSize: 10 }} />
-          </Card>
-        </>
+        <div className="bg-white shadow-lg border rounded-lg p-4">
+          <h2 className="text-2xl font-bold mb-4">Detailed Results</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {columns.map(col => <th key={col.key} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{col.title}</th>)}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {attempts.map(attempt => (
+                  <tr key={attempt._id}>
+                    {columns.map(col => <td key={col.key} className="px-6 py-4 whitespace-nowrap">{col.render(attempt)}</td>)}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
-    </motion.div>
+    </div>
   );
 };
 

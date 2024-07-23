@@ -4,11 +4,13 @@ import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import { FaBook, FaClipboardCheck, FaSpinner } from 'react-icons/fa';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useUser } from '@/context/UserContext';
 
 const UserDashboard = () => {
   const [availableQuizzes, setAvailableQuizzes] = useState([]);
   const [attemptedQuizzes, setAttemptedQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const {user}=useUser()
   
   const router = useRouter();
 
@@ -23,33 +25,14 @@ const UserDashboard = () => {
       const publishedQuizzes = availableData.filter(quiz => quiz.state === 'publish');
       setAvailableQuizzes(publishedQuizzes);
 
-      const attemptedData = [
-        {
-          _id: "quiz123",
-          title: "JavaScript Basics",
-          description: "Test your knowledge of JavaScript fundamentals",
-          questionCount: 15,
-          score: 80,
-          dateTaken: "2024-07-15T14:30:00Z"
-        },
-        {
-          _id: "quiz456",
-          title: "React Fundamentals",
-          description: "Assess your understanding of React core concepts",
-          questionCount: 20,
-          score: 75,
-          dateTaken: "2024-07-16T10:15:00Z"
-        },
-        {
-          _id: "quiz789",
-          title: "CSS Mastery",
-          description: "Test your CSS styling skills",
-          questionCount: 18,
-          score: 90,
-          dateTaken: "2024-07-17T09:45:00Z"
-        }
-      ];
+      const attemptedResponse = await fetch(`http://localhost:4000/api/attempted-quizzes/${user._id}`);
+      if (!attemptedResponse.ok) {
+        throw new Error('Failed to fetch attempted quizzes');
+      }
+      const attemptedData = await attemptedResponse.json();
+      console.log("attempted data",attemptedData)
       setAttemptedQuizzes(attemptedData);
+    
     } catch (error) {
       console.error('Error fetching quizzes:', error);
       toast.error('Failed to load quizzes. Please try again later.');
@@ -85,37 +68,76 @@ const UserDashboard = () => {
       </div>
     </motion.div>
   );
-
   const AttemptedQuizzesTable = () => (
     <div className="overflow-x-auto mt-8">
-      <table className="min-w-full bg-white border border-gray-300 shadow-md rounded-lg">
-        <thead className="bg-gray-100">
+      <table className="min-w-full bg-white border border-gray-300 shadow-md rounded-lg overflow-hidden">
+        <thead className="bg-gray-800 text-white">
           <tr>
-            <th className="py-2 px-3 text-left text-gray-700 font-semibold">Quiz Title</th>
-            <th className="py-2 px-3 text-left text-gray-700 font-semibold">Questions</th>
-            <th className="py-2 px-3 text-left text-gray-700 font-semibold">Score</th>
-            <th className="py-2 px-3 text-left text-gray-700 font-semibold">Date Taken</th>
+            <th className="py-3 px-4 text-left font-semibold">Quiz Title</th>
+            <th className="py-3 px-4 text-left font-semibold">Questions</th>
+            <th className="py-3 px-4 text-left font-semibold">Score</th>
+            <th className="py-3 px-4 text-left font-semibold">Date Taken</th>
+            <th className="py-3 px-4 text-left font-semibold">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {attemptedQuizzes.map((quiz) => (
-            <tr key={quiz._id} className="border-t border-gray-200 hover:bg-gray-50">
-              <td className="py-2 px-3 text-gray-800">{quiz.title}</td>
-              <td className="py-2 px-3 text-gray-600">{quiz.questionCount}</td>
-              <td className="py-2 px-3 text-green-600 font-medium">{quiz.score}%</td>
-              <td className="py-2 px-3 text-gray-600">
-                {new Date(quiz.dateTaken).toLocaleDateString()}
-              </td>
-            </tr>
-          ))}
+          {attemptedQuizzes.map((acc, index) => {
+            const totalQuestions = acc.answers.length;
+            const correctAnswers = acc.answers.filter(a => a.selectedAnswer.trim().toLowerCase() === 'true').length;
+            const score = (totalQuestions > 0) ? (correctAnswers / totalQuestions) * 100 : 0;
+            
+            return (
+              <tr key={acc._id} className={`border-t border-gray-200 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-gray-100 transition-colors duration-150`}>
+                <td className="py-3 px-4 text-gray-800 font-medium">{acc.quiz.quizName}</td>
+                <td className="py-3 px-4 text-gray-600">{totalQuestions}</td>
+                <td className="py-3 px-4">
+                  <div className="flex items-center">
+                    <div className={`w-2 h-2 rounded-full mr-2 ${score >= 70 ? 'bg-green-500' : score >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+                    <span className={`font-medium ${score >= 70 ? 'text-green-600' : score >= 40 ? 'text-yellow-600' : 'text-red-600'}`}>
+                      {score.toFixed(2)}%
+                    </span>
+                    <div className="ml-4 w-24 bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 relative">
+                      <div 
+                        className={`h-2.5 rounded-full ${
+                          score >= 70 ? 'bg-green-500' : 
+                          score >= 40 ? 'bg-yellow-500' : 
+                          'bg-red-500'
+                        }`}
+                        style={{ width: `${score}%` }}
+                      ></div>
+                      <span className="absolute right-0 text-xs font-bold text-gray-800">{score.toFixed(2)}%</span>
+                    </div>
+                  </div>
+                </td>
+                <td className="py-3 px-4 text-gray-600">
+                  {new Date(acc.completedAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </td>
+                <td className="py-3 px-4">
+               
+<button
+  onClick={() => router.push(`/user/results/${acc._id}`)}
+  className="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-3 rounded transition-colors duration-300"
+>
+  View Details
+</button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
   );
-
+  
   const PerformanceChart = () => {
     const chartData = attemptedQuizzes.map(quiz => ({
-      name: quiz.title,
+      name: quiz.quiz.quizName,
       score: quiz.score
     }));
 
