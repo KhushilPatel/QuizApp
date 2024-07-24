@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { useUser } from "@/context/UserContext";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -9,12 +10,13 @@ const AttemptedQuizzes = () => {
     labels: [],
     datasets: [],
   });
-
+const {user}=useUser()
   useEffect(() => {
    
     const fetchData = async () => {
-      const response = await fetch('http://localhost:4000/api/quizzes');
+      const response = await fetch(`http://localhost:4000/api/attempted-quizzes/${user._id}`);
       const data = await response.json();
+      console.log("khushil",data)
     //   const data = [
     //     { quizName: "Quiz 1", attempts: 15 },
     //     { quizName: "Quiz 2", attempts: 10 },

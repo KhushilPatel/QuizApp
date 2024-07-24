@@ -23,7 +23,7 @@ exports.submitQuizAttempt = async (req, res) => {
 };
 
 exports.getAttemptedQuiz = async (req, res) => {
-   
+
   try {
     const userId = req.params.userId;
     const attempts = await AttemptedQuiz.find({ user: userId }).populate('quiz'); 

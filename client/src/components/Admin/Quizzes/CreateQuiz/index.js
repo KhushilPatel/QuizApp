@@ -14,7 +14,7 @@ const quizSchema = z.object({
   questionBank: z.string().min(1, "*Question bank is required"),
 });
 
-const CreateOrEditQuiz = ({ isOpen, onRequestClose, router, quizId, onEditSuccess }) => {
+const CreateOrEditQuiz = ({ isOpen, onRequestClose, router, quizId, onEditSuccess ,onQuizCreated}) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [questionBanks, setQuestionBanks] = useState([]);
  
@@ -97,15 +97,16 @@ const CreateOrEditQuiz = ({ isOpen, onRequestClose, router, quizId, onEditSucces
         onEditSuccess();
       } else {
         const res = await axios.post("http://localhost:4000/api/quizzes", quizData);
-        router.push({
-          pathname: "/admin/quizzes",
-          query: {
-            title: data.title,
-            description: data.description,
-            score: data.score,
-            createdAt: data.createdAt,
-          },
-        });
+        onQuizCreated();
+        // // router.push({
+        // //   pathname: "/admin/quizzes",
+        // //   query: {
+        // //     title: data.title,
+        // //     description: data.description,
+        // //     score: data.score,
+        // //     createdAt: data.createdAt,
+        // //   },
+        // });
       
       }
     } catch (error) {

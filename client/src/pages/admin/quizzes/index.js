@@ -8,6 +8,7 @@ import AdminRoute from "@/components/Admin/AdminRoute";
 const QuizComponent = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [questionBanks, setQuestionBanks] = useState([]);
+  const [quizCreatedOrEdited, setQuizCreatedOrEdited] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -20,6 +21,9 @@ const QuizComponent = () => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
+  const handleQuizCreated=()=>{
+    setQuizCreatedOrEdited((prev) => !prev);
+  }
   return (
     <AdminRoute>
       
@@ -43,7 +47,7 @@ const QuizComponent = () => {
           </div>
         </div>
         <div className="mt-4">
-        <QuizList/>
+        <QuizList quizCreatedOrEdited={quizCreatedOrEdited} />
         </div>
       </div>
 
@@ -52,6 +56,7 @@ const QuizComponent = () => {
         onRequestClose={closeModal}
         questionBanks={questionBanks}
         router={router}
+        onQuizCreated={handleQuizCreated}
       />
     </div>
 

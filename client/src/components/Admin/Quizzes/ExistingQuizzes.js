@@ -1,7 +1,8 @@
-import React, { useReducer, useEffect } from "react";
+import React, { useReducer, useEffect, useState } from "react";
 import axios from "axios";
 import ConfirmationDialog from "@/components/ui/ConfirmationDialogue";
-import CreateOrEditQuiz from "./CreateQuiz";
+import EditQuiz from "./CreateQuiz";
+import { FaEdit, FaTrash, FaCheck, FaTimes } from 'react-icons/fa';
 
 const initialState = {
   quizzes: [],
@@ -36,12 +37,12 @@ const reducer = (state, action) => {
   }
 };
 
-const QuizList = () => {
+const QuizList = ({ quizCreatedOrEdited }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-
+  
   useEffect(() => {
     fetchQuizzes();
-  }, [state.loading]);
+  }, [state.loading, quizCreatedOrEdited]);
 
   const fetchQuizzes = async () => {
     try {
@@ -89,7 +90,10 @@ const QuizList = () => {
       const newState = quiz.state === "publish" ? "draft" : "publish";
       const updatedQuiz = { ...quiz, state: newState };
 
-      await axios.put(`http://localhost:4000/api/quizzes/${quiz._id}`, updatedQuiz);
+      await axios.put(
+        `http://localhost:4000/api/quizzes/${quiz._id}`,
+        updatedQuiz
+      );
 
       const updatedQuizzes = state.quizzes.map((q) =>
         q._id === quiz._id ? updatedQuiz : q
@@ -103,71 +107,79 @@ const QuizList = () => {
   };
 
   return (
-    <div className="w-[1130px] rounded-xl">
-      <div className="overflow-x-auto  border-collapse border rounded-xl">
-        <table className="min-w-full bg-white">
-          <thead className="bg-[#0D1321] text-white">
+    <div className="w-full max-w-7xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-800 text-white">
             <tr>
-              <th className="py-2 px-4 border-b border-r text-center">Quiz Name</th>
-              <th className="py-2 px-4 border-b border-r text-center">Question Bank</th>
-              <th className="py-2 px-4 border-b border-r text-center">Score per question</th>
-              <th className="py-2 px-4 border-b border-r text-center">Description</th>
-              <th className="py-2 px-4 border-b border-r text-center">Created At</th>
-              <th className="py-2 px-4 border-b border-r text-center">Actions</th>
-              <th className="py-2 px-4 border-b border-r text-center">Active</th>
+              <th className="py-3 px-4 text-left">Quiz Name</th>
+              <th className="py-3 px-4 text-left">Question Bank / Status</th>
+              <th className="py-3 px-4 text-center">Score</th>
+              <th className="py-3 px-4 text-left">Description</th>
+              <th className="py-3 px-4 text-center">Created At</th>
+              <th className="py-3 px-4 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
             {state.quizzes.map((quiz) => (
-              <tr key={quiz._id}>
-                <td className="py-1 px-4 border-b border-r text-center">{quiz.quizName}</td>
-                <td className="py-1 px-4 border-b border-r text-center">{quiz.questionBank.title}</td>
-                <td className="py-1 px-4 border-b border-r text-center">{quiz.score}</td>
-                <td className="py-1 px-4 border-b border-r text-center">{quiz.description}</td>
-                <td className="py-1 px-4 border-b border-r text-center">{quiz.createdAt.toString().slice(0, 16)}</td>
-                <td className="py-1 flex gap-2 pl-6 border-b border-r text-center">
-                  <button
-                    className="py-2 bg-[#C5D86D] w-[75px] h-[40px] rounded-2xl flex items-center justify-center"
-                    onClick={() => handleEdit(quiz)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="px-4 bg-red-500 w-[75px] h-[35px] rounded-xl"
-                    onClick={() => confirmDelete(quiz)}
-                  >
-                    Delete
-                  </button>
-                  <ConfirmationDialog
-                    key={`confirmation-${quiz._id}`}
-                    isOpen={state.showConfirmation && state.quizToDelete && state.quizToDelete._id === quiz._id}
-                    message="Are you sure you want to delete this quiz?"
-                    onCancel={() => dispatch({ type: "HIDE_CONFIRMATION" })}
-                    onConfirm={handleConfirmDelete}
-                  />
+              <tr key={quiz._id} className="border-b hover:bg-gray-50">
+                <td className="py-3 px-4">{quiz.quizName}</td>
+                <td className="py-3 px-4">
+                  <div className="flex items-center justify-between">
+                    <span>{quiz.questionBank.title}</span>
+                    <button
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        quiz.state === "publish"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                      onClick={() => togglePublishState(quiz)}
+                      disabled={state.loadingQuizId === quiz._id}
+                    >
+                      {state.loadingQuizId === quiz._id ? (
+                        <span className="animate-spin">⟳</span>
+                      ) : (
+                        quiz.state.charAt(0).toUpperCase() + quiz.state.slice(1)
+                      )}
+                    </button>
+                  </div>
                 </td>
-                <td className="py-1 px-4 border-b border-r text-center">
-                  <button
-                    className={`px-4 ${
-                      quiz.state === "publish" ? "bg-green-500" : "bg-yellow-500"
-                    } w-[75px] h-[35px] rounded-xl transition-colors duration-300`}
-                    onClick={() => togglePublishState(quiz)}
-                    disabled={state.loadingQuizId === quiz._id}
-                  >
-                    {state.loadingQuizId === quiz._id ? (
-                      <span className="animate-spin">⟳</span>
-                    ) : (
-                      quiz.state === "publish" ? "Publish" : "Draft"
-                    )}
-                  </button>
+                <td className="py-3 px-4 text-center">{quiz.score}</td>
+                <td className="py-3 px-4">{quiz.description}</td>
+                <td className="py-3 px-4 text-center">
+                  {new Date(quiz.createdAt).toLocaleDateString()}
+                </td>
+                <td className="py-3 px-4">
+                  <div className="flex justify-center space-x-2">
+                    <button
+                      className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-200"
+                      onClick={() => handleEdit(quiz)}
+                      title="Edit"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors duration-200"
+                      onClick={() => confirmDelete(quiz)}
+                      title="Delete"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      <ConfirmationDialog
+        isOpen={state.showConfirmation}
+        message="Are you sure you want to delete this quiz?"
+        onCancel={() => dispatch({ type: "HIDE_CONFIRMATION" })}
+        onConfirm={handleConfirmDelete}
+      />
       {state.quizToEdit && (
-        <CreateOrEditQuiz
+        <EditQuiz
           key={`edit-${state.quizToEdit._id}`}
           isOpen={state.showEditDialog}
           onRequestClose={() => dispatch({ type: "HIDE_EDIT_DIALOG" })}

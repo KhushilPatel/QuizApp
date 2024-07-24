@@ -12,7 +12,7 @@ import AdminLayout from '@/components/Admin/AdminLayout';
 
 function App({ Component, pageProps }) {
   const router = useRouter();
-  const noLayoutRoutes = ['/signUp', '/signIn', '/admin/question-bank/add', '/admin/question-bank/edit/[id]','/user/quiz/[id]'];
+  const noLayoutRoutes = ['/signUp', '/signIn', '/admin/question-bank/add', '/admin/question-bank/edit/[id]','/user/quiz/[id]','/user/results/[id]'];
 
   const getLayout = () => {
     if (noLayoutRoutes.includes(router.pathname)) {
