@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 const AdminRoute = ({ children }) => {
   const router = useRouter();
   const { user, loading } = useUser();
-  console.log("User in AdminRoute:", user);
+  
 
   useEffect(() => {
     if (!user && !loading) {

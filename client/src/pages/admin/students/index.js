@@ -40,7 +40,7 @@ const Students = () => {
     };
 
     fetchStudentData();
-  }, [auth, editMode, addMode,students]);
+  }, [auth, editMode, addMode]);
 
   const handleEditClick = (student) => {
     setCurrentStudent(student);
