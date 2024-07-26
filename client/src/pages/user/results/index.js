@@ -48,7 +48,9 @@ const UserResults = () => {
     { title: 'Score', key: 'score', render: (attempt) => {
       const correctAnswers = attempt.score;
       const totalQuestions = attempt.answers.length;
+      console.log("totalQuestions",attempt)
       const score = (totalQuestions > 0) ? (correctAnswers / totalQuestions) * 100 : 0;
+      console.log("score",score)
       return (
         <div className="flex items-center">
           <div className={`w-2 h-2 rounded-full mr-2 ${score >= 70 ? 'bg-green-500' : score >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`}></div>

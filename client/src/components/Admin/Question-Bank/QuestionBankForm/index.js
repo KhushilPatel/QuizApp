@@ -4,15 +4,22 @@ import { useRouter } from "next/router";
 import "tailwindcss/tailwind.css";
 
 const QuestionBankForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
-  console.log("initial",initialData)
+  console.log("initial", initialData);
   const router = useRouter();
-  const { title: initialTitle, description: initialDescription, time: initialTime, questions: initialQuestions } = initialData;
+  const {
+    title: initialTitle,
+    description: initialDescription,
+    time: initialTime,
+    questions: initialQuestions,
+  } = initialData;
   const [title, setTitle] = useState(initialTitle || "");
   const [description, setDescription] = useState(initialDescription || "");
   const [time, setTime] = useState(initialTime || "");
-  const [questions, setQuestions] = useState(initialQuestions || [
-    { questionText: "", options: [{ text: "", isCorrect: false }] },
-  ]);
+  const [questions, setQuestions] = useState(
+    initialQuestions || [
+      { questionText: "", options: [{ text: "", isCorrect: false }] },
+    ]
+  );
 
   const handleAddQuestion = () => {
     setQuestions([
@@ -24,6 +31,12 @@ const QuestionBankForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
   const handleAddOption = (index) => {
     const newQuestions = [...questions];
     newQuestions[index].options.push({ text: "", isCorrect: false });
+    setQuestions(newQuestions);
+  };
+
+  const handleRemoveOption = (qIndex, oIndex) => {
+    const newQuestions = [...questions];
+    newQuestions[qIndex].options.splice(oIndex, 1);
     setQuestions(newQuestions);
   };
 
@@ -47,6 +60,21 @@ const QuestionBankForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    
+    for (let i = 0; i < questions.length; i++) {
+      const question = questions[i];
+      if (question.options.length < 2) {
+        alert(`Question ${i + 1} must have at least two options.`);
+        return;
+      }
+      const hasCorrectOption = question.options.some(option => option.isCorrect);
+      if (!hasCorrectOption) {
+        alert(`Question ${i + 1} must have at least one correct option.`);
+        return;
+      }
+    }
+
     const currentDateTime = new Date().toISOString();
     const questionBank = {
       title,
@@ -61,7 +89,9 @@ const QuestionBankForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
 
   return (
     <div className="max-w-4xl mx-auto mt-10 p-6 border rounded-lg shadow-lg bg-white">
-      <h1 className="text-2xl font-bold mb-6 text-center">{isEdit ? 'Edit' : 'Add'} Question Bank</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center">
+        {isEdit ? "Edit" : "Add"} Question Bank
+      </h1>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2">Title:</label>
@@ -74,7 +104,9 @@ const QuestionBankForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 font-bold mb-2">Description:</label>
+          <label className="block text-gray-700 font-bold mb-2">
+            Description:
+          </label>
           <input
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -91,9 +123,13 @@ const QuestionBankForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
         </div>
         {questions.map((question, qIndex) => (
           <div key={qIndex} className="mb-6">
-            <h3 className="text-xl font-semibold mb-2">Question {qIndex + 1}</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              Question {qIndex + 1}
+            </h3>
             <div className="mb-4">
-              <label className="block text-gray-700 font-bold mb-2">Question Text:</label>
+              <label className="block text-gray-700 font-bold mb-2">
+                Question Text:
+              </label>
               <input
                 type="text"
                 value={question.questionText}
@@ -104,12 +140,16 @@ const QuestionBankForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
             </div>
             {question.options.map((option, oIndex) => (
               <div key={oIndex} className="mb-4">
-                <label className="block text-gray-700 font-bold mb-2">Option {oIndex + 1}:</label>
+                <label className="block text-gray-700 font-bold mb-2">
+                  Option {oIndex + 1}:
+                </label>
                 <label className="flex gap-1">
                   <input
                     type="checkbox"
                     checked={option.isCorrect}
-                    onChange={(e) => handleChangeCorrectOption(qIndex, oIndex, e)}
+                    onChange={(e) =>
+                      handleChangeCorrectOption(qIndex, oIndex, e)
+                    }
                     className="mt-2 size-9"
                   />
                   <input
@@ -119,6 +159,13 @@ const QuestionBankForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
                     required
                     className="w-[3/2] px-3 py-2 border rounded-lg"
                   />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveOption(qIndex, oIndex)}
+                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  Remove
+                </button>
                 </label>
               </div>
             ))}

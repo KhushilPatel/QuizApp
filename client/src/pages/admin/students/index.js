@@ -20,6 +20,7 @@ const Students = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
   const [loadingStudentId, setLoadingStudentId] = useState(null);
+  const [toggleCheck, settoggleCheck] = useState(false)
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
@@ -40,7 +41,7 @@ const Students = () => {
     };
 
     fetchStudentData();
-  }, [auth, editMode, addMode]);
+  }, [auth, editMode, addMode,toggleCheck]);
 
   const handleEditClick = (student) => {
     setCurrentStudent(student);
@@ -131,11 +132,10 @@ const Students = () => {
         }
       );
       
-      // Immediately update the local state
       setStudents(prevStudents =>
         prevStudents.map(s => s._id === student._id ? response.data : s)
       );
-      
+      settoggleCheck((prev)=>!prev)
       toast(`Student ${updatedStudent.active ? 'activated' : 'deactivated'} successfully`);
     } catch (error) {
       console.error("Error updating student:", error);

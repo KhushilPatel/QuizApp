@@ -21,7 +21,7 @@ const QuestionBankDetails = ({ bank }) => {
         `http://localhost:4000/api/questionBanks/${bank._id}`,
         questionBank
       );
-      alert("Question bank updated successfully");
+      toast.success("Question bank updated successfully");
       router.push('/admin/question-bank')
       console.log(response.data);
     } catch (error) {

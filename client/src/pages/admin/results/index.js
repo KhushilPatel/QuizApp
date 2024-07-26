@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import Modal from 'react-modal';
+
+// Set the app element for accessibility
+Modal.setAppElement('#__next'); // Assuming you're using Next.js
 
 const Results = () => {
   const [clientData, setClientData] = useState([]);
@@ -46,6 +50,24 @@ const Results = () => {
   const closeModal = () => {
     setSelectedClient(null);
     setIsModalOpen(false);
+  };
+
+  const customStyles = {
+    content: {
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+      maxWidth: '500px',
+      width: '100%',
+      maxHeight: '80vh',
+      overflow: 'auto',
+    },
+    overlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.75)'
+    }
   };
 
   if (loading) return <div className="text-center py-10 text-xl text-gray-600">Loading...</div>;
@@ -107,17 +129,23 @@ const Results = () => {
         </table>
       </div>
 
-      {isModalOpen && selectedClient && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-lg w-full relative">
-            <button
-              onClick={closeModal}
-              className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 font-bold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        style={customStyles}
+        contentLabel="Attempted Quizzes"
+      >
+        <button
+          onClick={closeModal}
+          className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 font-bold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        {selectedClient && (
+          <>
+            <h2 className="text-xl font-semibold mb-4">Attempted Quizzes for {selectedClient.firstName} {selectedClient.lastName}</h2>
             {selectedClient.attemptedQuizzes.length === 0 ? (
               <p className="text-sm text-gray-500 italic">No quizzes attempted yet.</p>
             ) : (
@@ -126,7 +154,7 @@ const Results = () => {
                   <li key={quiz.quizId} className="bg-gray-50 rounded p-3">
                     <div className="font-medium text-gray-800 mb-1">{quiz.quizName}</div>
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-green-600">Score: {quiz.score}</span>
+                      <span className="text-green-600">Score: {((quiz.score/quiz.totalQuestions)*100).toFixed(2)}%</span>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${quiz.completed ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'}`}>
                         {quiz.completed ? 'Completed' : 'In Progress'}
                       </span>
@@ -140,9 +168,9 @@ const Results = () => {
                 ))}
               </ul>
             )}
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   );
 };

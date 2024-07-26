@@ -2,6 +2,7 @@ import React from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import QuestionBankForm from "@/components/Admin/Question-Bank/QuestionBankForm";
+import { toast } from "react-toastify";
 
 const AddQuestionBank = () => {
   const router = useRouter();
@@ -13,7 +14,7 @@ const AddQuestionBank = () => {
         "http://localhost:4000/api/questionBanks",
         questionBank
       );
-      alert("Question bank created successfully");
+      toast.success("Question bank created successfully");
       router.push('/admin/question-bank')
       console.log(response.data);
     } catch (error) {

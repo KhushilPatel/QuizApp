@@ -68,11 +68,12 @@ const QuizAttempt = () => {
 
   const handleSubmitQuiz = async () => {
     try {
-      const answers = Object.entries(userAnswers).map(([questionId, selectedAnswer]) => ({
-        question: questionId,
-        selectedAnswer
+      // Create an array of all questions, with null for unattempted ones
+      const answers = quiz.questionBank.questions.map(question => ({
+        question: question._id.toString(),
+        selectedAnswer: userAnswers[question._id.toString()] || null
       }));
-
+  
       const correctAnswers = quiz.questionBank.questions.reduce((acc, question) => {
         const correctOption = question.options.find(option => option.isCorrect);
         if (correctOption) {
@@ -80,14 +81,14 @@ const QuizAttempt = () => {
         }
         return acc;
       }, {});
-
+  
       const score = answers.reduce((total, answer) => {
         if (correctAnswers[answer.question] === answer.selectedAnswer) {
           return total + 1;
         }
         return total;
       }, 0);
-
+  
       const response = await fetch('http://localhost:4000/api/attempted-quizzes/submit', {
         method: 'POST',
         headers: {
@@ -95,11 +96,11 @@ const QuizAttempt = () => {
         },
         body: JSON.stringify({ quizId: id, userId: user._id, answers, score }),
       });
-
+  
       if (!response.ok) {
         throw new Error('Failed to submit quiz');
       }
-
+  
       const result = await response.json();
       console.log('Quiz submitted successfully. Score:', result.score);
       router.push(`/user/results`);
@@ -114,7 +115,7 @@ const QuizAttempt = () => {
   };
 
   const confirmExit = () => {
-    router.push('/user/dashboard'); // Adjust this route as needed
+    router.push('/user/dashboard'); 
   };
 
   const cancelExit = () => {
