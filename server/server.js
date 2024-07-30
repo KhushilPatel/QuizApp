@@ -11,7 +11,7 @@ const generateRoutes = require('./router/generateQb');
 const connectDb=require("./utils/db");
 const errormMiddleware = require("./middleware/error-middleware");
 const cors=require('cors');
-const PORT=process.env.PORT || 4000;
+
 
 const corsOptions={
     origin:"http://localhost:4001",
@@ -32,7 +32,7 @@ const corsOptions={
   app.use(errormMiddleware)
   
   connectDb().then(()=>{
-    app.listen(PORT, () => {
+    app.listen(4000, () => {
       console.log("Server is running on port: 4000");
     }); 
   }).catch((error)=>{

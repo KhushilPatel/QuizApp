@@ -126,7 +126,7 @@ const QuizList = ({ quizCreatedOrEdited }) => {
                 <td className="py-3 px-4">{quiz.quizName}</td>
                 <td className="py-3 px-4">
                   <div className="flex items-center justify-between">
-                    <span>{quiz.questionBank.title}</span>
+                    <span>{quiz?.questionBank?.title}</span>
                     <button
                       className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         quiz.state === "publish"
