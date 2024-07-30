@@ -1,5 +1,5 @@
 const Groq = require('groq-sdk');
-const client = new Groq({ apiKey: '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' });
+const client = new Groq({ apiKey: process.env.GENERATEQB_KEY });
 
 exports.generateQb = async (req, res) => {
   try {
