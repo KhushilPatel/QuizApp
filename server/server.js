@@ -7,6 +7,7 @@ const quizRoutes = require('./router/quiz-router');
 const studentRoutes = require('./router/student-router');
 const attemptedQuizRoutes = require('./router/attemptedQuizRoutes');
 const adminRoutes = require('./router/adminRouter');
+const generateRoutes = require('./router/generateQb');
 const connectDb=require("./utils/db");
 const errormMiddleware = require("./middleware/error-middleware");
 const cors=require('cors');
@@ -26,6 +27,7 @@ const corsOptions={
   app.use('/api/students', studentRoutes);
   app.use('/api/attempted-quizzes', attemptedQuizRoutes);
   app.use('/api/admin', adminRoutes);
+  app.use('/api/generateQb',generateRoutes)
 
   app.use(errormMiddleware)
   

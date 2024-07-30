@@ -8,7 +8,7 @@ const getAllStudents = async (req, res) => {
 
      
       return res.status(200).json(studentData );
-    } catch (error) {
+    } catch (err) {
       console.log(`error from the user route `);
     }
   };

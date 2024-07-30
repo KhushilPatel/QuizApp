@@ -13,7 +13,7 @@ export default function SignIn() {
 const router = useRouter();
 
 useEffect(() => {
-  if (!loading && user) {
+  if (!loading && user  ) {
     if (user?.isAdmin) {
       router.push('/admin/dashboard');
     } else {

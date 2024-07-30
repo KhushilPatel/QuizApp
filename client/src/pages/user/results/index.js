@@ -42,7 +42,7 @@ const UserResults = () => {
   }
 
   const columns = [
-    { title: 'Quiz Title', key: 'quizName', render: (attempt) => attempt.quiz.quizName },
+    { title: 'Quiz Title', key: 'quizName', render: (attempt) => attempt?.quiz?.quizName },
     { title: 'Attempted Questions', key: 'totalQuestions', render: (attempt) => attempt.answers.length },
     { title: 'Correct Answers', key: 'correctAnswers', render: (attempt) => attempt.score },
     { title: 'Score', key: 'score', render: (attempt) => {

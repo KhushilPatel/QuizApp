@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import QuestionBankForm from "@/components/Admin/Question-Bank/QuestionBankForm";
@@ -7,6 +7,8 @@ import { toast } from "react-toastify";
 const AddQuestionBank = () => {
   const router = useRouter();
   const { title, description, time } = router.query;
+  const [generatedQuestions, setGeneratedQuestions] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleSubmit = async (questionBank) => {
     try {
@@ -19,23 +21,44 @@ const AddQuestionBank = () => {
       console.log(response.data);
     } catch (error) {
       console.error("Error creating question bank", error);
+      toast.error("Error creating question bank");
+    }
+  };
+
+  const handleGenerateWithAI = async (aiSettings) => {
+    setIsGenerating(true);
+    try {
+      const response = await axios.post(
+        "http://localhost:4000/api/generateQb/generate",
+        aiSettings
+      );
+      console.log("AI response",response.data)
+      setGeneratedQuestions(response.data);
+      toast.success("Questions generated successfully");
+    } catch (error) {
+      console.error("Error generating questions", error);
+      toast.error("Error generating questions");
+    } finally {
+      setIsGenerating(false);
     }
   };
 
   return (
     <div>
-
       <QuestionBankForm
         initialData={{ title, description, time }}
         onSubmit={handleSubmit}
+        onGenerateWithAI={handleGenerateWithAI}
+        generatedQuestions={generatedQuestions}
+        isGenerating={isGenerating}
       />
-       <button
-          type="button"
-          onClick={() => router.back()}
-          className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-4"
-        >
-          Go Back
-        </button>
+      <button
+        type="button"
+        onClick={() => router.back()}
+        className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-4"
+      >
+        Go Back
+      </button>
     </div>
   );
 };

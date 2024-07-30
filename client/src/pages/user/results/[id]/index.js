@@ -46,8 +46,8 @@ const QuizResultDetails = () => {
   }
 
   const calculateScore = () => {
-    const totalQuestions = quizAttempt.quiz.questionBank.questions.length;
-    const correctAnswers = quizAttempt.quiz.questionBank.questions.filter((question, index) => {
+    const totalQuestions = quizAttempt.quiz.questionBank?.questions.length;
+    const correctAnswers = quizAttempt.quiz.questionBank?.questions.filter((question, index) => {
       const userAnswer = quizAttempt.answers.find(a => a.question === question._id);
       const correctOption = question.options.find(o => o.isCorrect);
       return userAnswer?.selectedAnswer === correctOption?.text;
@@ -74,7 +74,7 @@ const QuizResultDetails = () => {
             <p className="mt-2">Completed on: {new Date(quizAttempt.completedAt).toLocaleString()}</p>
           </div>
           <div className="p-6">
-            {quizAttempt.quiz.questionBank.questions.map((question, index) => {
+            {quizAttempt.quiz.questionBank?.questions.map((question, index) => {
               const userAnswer = quizAttempt.answers.find(a => a.question === question._id);
               const correctOption = question.options.find(o => o.isCorrect);
               const isCorrect = userAnswer?.selectedAnswer === correctOption?.text;
