@@ -1,7 +1,7 @@
-import { useUser } from '@/context/UserContext';
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { toast } from 'react-toastify';
+import { useUser } from "@/context/UserContext";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
+import { toast } from "react-toastify";
 
 const UserRoute = ({ children }) => {
   const router = useRouter();
@@ -9,9 +9,9 @@ const UserRoute = ({ children }) => {
   console.log("Login data:", user);
   useEffect(() => {
     if (!user && !loading) {
-      router.push('/signIn');
+      router.push("/signIn");
       toast("Please sign in first");
-    } 
+    }
   }, [user, loading, router]);
 
   if (loading) {

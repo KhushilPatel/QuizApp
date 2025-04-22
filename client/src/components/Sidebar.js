@@ -1,60 +1,112 @@
-import { useUser } from '@/context/UserContext';
-import { useRouter } from 'next/router';
-import React from 'react';
+import { useUser } from "@/context/UserContext";
+import { useRouter } from "next/router";
+import React from "react";
+import {
+  FaTachometerAlt,
+  FaBook,
+  FaClipboardList,
+  FaUsers,
+  FaChartBar,
+} from "react-icons/fa";
 
 const Sidebar = () => {
-    const router = useRouter();
-    const { user } = useUser();
-   
-    const isActive = (route) => {
-        return router.pathname === route ? ' text-blue-500 ' : 'hover:bg-gray-100';
-    };
+  const router = useRouter();
+  const { user } = useUser();
+  const isAdminView = router.pathname.startsWith("/admin");
 
-    return (
-        <div className="h-auto min-h-screen bg-white text-black w-[200px] shadow-lg border-r-2">
-            <ul className="mt-6 flex flex-col gap-8">
-                <li
-                    className={`flex items-center px-4 py-3 cursor-pointer border-b-2 ${isActive(user?.isAdmin ?'/admin/dashboard':'/user/dashboard')}`}
-                    onClick={() => router.push(user.isAdmin ?'/admin/dashboard':'/user/dashboard')}
-                >
-                    <img src="/images/dashboard.png" alt="Dashboard Icon" className="w-[40px] h-[40px] mr-3" />
-                    <span className="block text-xl font-medium">Dashboard</span>
+  const isActive = (route) => {
+    return router.pathname === route
+      ? "bg-blue-50 text-blue-600 border-l-4 border-blue-600"
+      : "hover:bg-gray-50";
+  };
+
+  const getRoute = (adminRoute, userRoute) => {
+    return isAdminView ? adminRoute : userRoute;
+  };
+
+  const menuItems = [
+    {
+      icon: <FaTachometerAlt className="w-5 h-5" />,
+      label: "Dashboard",
+      adminRoute: "/admin/dashboard",
+      userRoute: "/user/dashboard",
+    },
+    {
+      icon: <FaBook className="w-5 h-5" />,
+      label: "Quizzes",
+      adminRoute: "/admin/quizzes",
+      userRoute: "/user/quiz",
+    },
+    {
+      icon: <FaChartBar className="w-5 h-5" />,
+      label: "Results",
+      adminRoute: "/admin/results",
+      userRoute: "/user/results",
+    },
+  ];
+
+  const adminOnlyItems = [
+    {
+      icon: <FaClipboardList className="w-5 h-5" />,
+      label: "Question Bank",
+      route: "/admin/question-bank",
+    },
+    {
+      icon: <FaUsers className="w-5 h-5" />,
+      label: "Students",
+      route: "/admin/students",
+    },
+  ];
+
+  return (
+    <div className="h-full py-6">
+      <div className="px-4 mb-8">
+        <h2 className="text-xl font-bold text-gray-800">
+          {isAdminView ? "Admin Panel" : "Student Portal"}
+        </h2>
+      </div>
+      <ul className="space-y-2">
+        {menuItems.map((item) => (
+          <li key={item.label}>
+            <button
+              className={`flex items-center w-full px-4 py-3 text-sm font-medium transition-colors duration-200 ${isActive(
+                getRoute(item.adminRoute, item.userRoute)
+              )}`}
+              onClick={() =>
+                router.push(getRoute(item.adminRoute, item.userRoute))
+              }
+            >
+              <span className="mr-3">{item.icon}</span>
+              {item.label}
+            </button>
+          </li>
+        ))}
+
+        {user?.isAdmin && isAdminView && (
+          <div className="pt-4 border-t border-gray-200">
+            <h3 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              Admin Tools
+            </h3>
+            <ul className="mt-2 space-y-2">
+              {adminOnlyItems.map((item) => (
+                <li key={item.label}>
+                  <button
+                    className={`flex items-center w-full px-4 py-3 text-sm font-medium transition-colors duration-200 ${isActive(
+                      item.route
+                    )}`}
+                    onClick={() => router.push(item.route)}
+                  >
+                    <span className="mr-3">{item.icon}</span>
+                    {item.label}
+                  </button>
                 </li>
-                <li
-                    className={`flex items-center px-4 py-3 cursor-pointer border-b-2 ${isActive(user?.isAdmin ?'/admin/quizzes':'/user/quiz')}`}
-                    onClick={() => router.push(user.isAdmin ?'/admin/quizzes':'/user/quiz')}
-                >
-                    <img src="/images/quizzes.png" alt="Quizzes Icon" className="w-[40px] h-[40px] mr-3" />
-                    <span className="block text-xl font-medium">Quizzes</span>
-                </li>
-                {user?.isAdmin &&
-                    <>
-                        <li
-                            className={`flex items-center px-4 py-3 cursor-pointer border-b-2 ${isActive('/admin/question-bank')}`}
-                            onClick={() => router.push('/admin/question-bank')}
-                        >
-                            <img src="/images/quizzes.png" alt="Quizzes Icon" className="w-[40px] h-[40px] mr-3" />
-                            <span className="block text-xl font-medium">Question Bank</span>
-                        </li>
-                        <li
-                            className={`flex items-center px-4 py-3 cursor-pointer border-b-2 ${isActive('/admin/students')}`}
-                            onClick={() => router.push('/admin/students')}
-                        >
-                            <img src="/images/student.png" alt="Students Icon" className="w-[40px] h-[40px] mr-3" />
-                            <span className="block text-xl font-medium">Students</span>
-                        </li>
-                    </>
-                 }
-                <li
-                    className={`flex items-center px-4 py-3 cursor-pointer border-b-2 ${isActive(user?.isAdmin ? '/admin/results' : '/user/results')}`}
-                    onClick={() => router.push(user?.isAdmin ? '/admin/results' : '/user/results')}
-                >
-                    <img src="/images/result.png" alt="Results Icon" className="w-[40px] h-[40px] mr-3" />
-                    <span className="block text-xl font-medium">Results</span>
-                </li>
+              ))}
             </ul>
-        </div>
-    );
-}
+          </div>
+        )}
+      </ul>
+    </div>
+  );
+};
 
 export default Sidebar;

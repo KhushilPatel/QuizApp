@@ -15,14 +15,20 @@ const UserLayout = ({ children }) => {
     }
   }, [user]);
 
-  console.log("isUser",isUser)
-  
+  console.log("isUser", isUser);
+
   return (
-    <div className="flex flex-col">
-      <Navbar />
-      <div className="flex">
-        <Sidebar />
-        <main className="flex p-4">{children}</main>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <Navbar />
+      </div>
+      <div className="flex pt-16">
+        <div className="fixed left-0 top-16 h-screen w-64 bg-white/80 backdrop-blur-sm shadow-lg">
+          <Sidebar />
+        </div>
+        <main className="flex-1 ml-64 p-8">
+          <div className="max-w-7xl mx-auto">{children}</div>
+        </main>
       </div>
     </div>
   );
