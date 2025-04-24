@@ -93,7 +93,10 @@ const Navbar = () => {
               <IoIosMail className="h-5 w-5" />
             </button>
 
-            <button className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-full">
+            <button
+              onClick={() => router.push("/admin/notifications")}
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-full"
+            >
               <FaBell className="h-5 w-5" />
             </button>
 

@@ -17,7 +17,7 @@ const AddQuestionBank = () => {
         questionBank
       );
       toast.success("Question bank created successfully");
-      router.push('/admin/question-bank')
+      router.push("/admin/question-bank");
       console.log(response.data);
     } catch (error) {
       console.error("Error creating question bank", error);
@@ -32,7 +32,7 @@ const AddQuestionBank = () => {
         "http://localhost:4000/api/generateQb/generate",
         aiSettings
       );
-      console.log("AI response",response.data)
+      console.log("AI response", response.data);
       setGeneratedQuestions(response.data);
       toast.success("Questions generated successfully");
     } catch (error) {
@@ -44,22 +44,13 @@ const AddQuestionBank = () => {
   };
 
   return (
-    <div>
-      <QuestionBankForm
-        initialData={{ title, description, time }}
-        onSubmit={handleSubmit}
-        onGenerateWithAI={handleGenerateWithAI}
-        generatedQuestions={generatedQuestions}
-        isGenerating={isGenerating}
-      />
-      <button
-        type="button"
-        onClick={() => router.back()}
-        className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-4"
-      >
-        Go Back
-      </button>
-    </div>
+    <QuestionBankForm
+      initialData={{ title, description, time }}
+      onSubmit={handleSubmit}
+      onGenerateWithAI={handleGenerateWithAI}
+      generatedQuestions={generatedQuestions}
+      isGenerating={isGenerating}
+    />
   );
 };
 

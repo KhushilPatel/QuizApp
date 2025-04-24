@@ -2,13 +2,13 @@
 const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/adminController");
+const User = require("../models/user-model");
 
 router.get("/all-client-data", adminController.getAllClientData);
 
 // Debug route to check all users
 router.get("/debug/users", async (req, res) => {
   try {
-    const User = require("../models/user-model");
     const users = await User.find({}).select(
       "firstName lastName email isAdmin active"
     );

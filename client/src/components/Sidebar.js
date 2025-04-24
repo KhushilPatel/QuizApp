@@ -7,6 +7,7 @@ import {
   FaClipboardList,
   FaUsers,
   FaChartBar,
+  FaBell,
 } from "react-icons/fa";
 
 const Sidebar = () => {
@@ -42,6 +43,12 @@ const Sidebar = () => {
       label: "Results",
       adminRoute: "/admin/results",
       userRoute: "/user/results",
+    },
+    {
+      icon: <FaBell className="w-5 h-5" />,
+      label: "Notifications",
+      adminRoute: "/admin/notifications",
+      userRoute: "/user/notification",
     },
   ];
 

@@ -5,23 +5,23 @@ const Quiz = require("../models/quiz-model");
 exports.getAllClientData = async (req, res) => {
   console.log("=== Starting getAllClientData ===");
   try {
-    // Fetch all non-admin users
-    console.log("Attempting to find non-admin users...");
-    const clients = await User.find({ isAdmin: false });
-    console.log(`Found ${clients.length} non-admin users`);
-    console.log("Non-admin users:", JSON.stringify(clients, null, 2));
+    // Fetch all users (both admin and non-admin)
+    console.log("Attempting to find all users...");
+    const clients = await User.find({});
+    console.log(`Found ${clients.length} users`);
+    console.log("All users:", JSON.stringify(clients, null, 2));
 
     if (clients.length === 0) {
-      console.log("No non-admin users found in the database");
+      console.log("No users found in the database");
       return res.json([]);
     }
 
     // Fetch attempted quizzes for all clients
-    console.log("Starting to fetch attempted quizzes for each client...");
+    console.log("Starting to fetch attempted quizzes for each user...");
     const clientData = await Promise.all(
       clients.map(async (client) => {
         try {
-          console.log(`\nProcessing client: ${client.email} (${client._id})`);
+          console.log(`\nProcessing user: ${client.email} (${client._id})`);
 
           console.log("Fetching attempted quizzes...");
           const attemptedQuizzes = await AttemptedQuiz.find({
@@ -66,6 +66,7 @@ exports.getAllClientData = async (req, res) => {
             dateOfBirth: client.dateOfBirth,
             gender: client.gender,
             active: client.active,
+            isAdmin: client.isAdmin,
             attemptedQuizzes: formattedQuizzes,
           };
 
@@ -84,6 +85,7 @@ exports.getAllClientData = async (req, res) => {
             dateOfBirth: client.dateOfBirth,
             gender: client.gender,
             active: client.active,
+            isAdmin: client.isAdmin,
             attemptedQuizzes: [],
             error: error.message,
           };
@@ -92,7 +94,7 @@ exports.getAllClientData = async (req, res) => {
     );
 
     console.log("\n=== Final Results ===");
-    console.log("Number of clients processed:", clientData.length);
+    console.log("Number of users processed:", clientData.length);
     console.log("Final clientData:", JSON.stringify(clientData, null, 2));
     res.json(clientData);
   } catch (error) {

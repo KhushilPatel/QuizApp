@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import { useRouter } from 'next/router';
+import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import { useRouter } from "next/router";
 
 const UserQuizzes = () => {
   const [quizzes, setQuizzes] = useState([]);
@@ -13,17 +13,16 @@ const UserQuizzes = () => {
 
   const fetchQuizzes = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/quizzes');
+      const response = await fetch("http://localhost:4000/api/quizzes");
       if (!response.ok) {
-        throw new Error('Failed to fetch quizzes');
+        throw new Error("Failed to fetch quizzes");
       }
       const data = await response.json();
-      const publishedQuizzes = data.filter(quiz => quiz.state === 'publish');
+      const publishedQuizzes = data.filter((quiz) => quiz.state === "publish");
       setQuizzes(publishedQuizzes);
-      
     } catch (error) {
-      console.error('Error fetching quizzes:', error);
-      toast.error('Failed to load quizzes. Please try again later.');
+      console.error("Error fetching quizzes:", error);
+      toast.error("Failed to load quizzes. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -39,7 +38,7 @@ const UserQuizzes = () => {
   }
 
   return (
-    <div className="w-[1200px] mx-auto px-4 py-8">
+    <div className="w-full max-w-7xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Available Quizzes</h1>
       {quizzes.length === 0 ? (
         <p>No quizzes available at the moment.</p>

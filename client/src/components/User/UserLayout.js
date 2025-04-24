@@ -26,8 +26,8 @@ const UserLayout = ({ children }) => {
         <div className="fixed left-0 top-16 h-screen w-64 bg-white/80 backdrop-blur-sm shadow-lg">
           <Sidebar />
         </div>
-        <main className="flex-1 ml-64 p-8">
-          <div className="max-w-7xl mx-auto">{children}</div>
+        <main className="flex-1 ml-64 pl-4 pr-4">
+          <div className="max-w-screen">{children}</div>
         </main>
       </div>
     </div>

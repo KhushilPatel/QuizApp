@@ -10,13 +10,20 @@ const AdminRoute = ({ children }) => {
 
   useEffect(() => {
     if (!user && !loading) {
-      router.push("/signIn"); // Redirect to sign-in page if not authenticated
+      router.push("/signIn");
       toast("Please sign in first");
+    } else if (user && !user.isAdmin) {
+      router.push("/user/dashboard");
+      toast("You don't have admin access");
     }
   }, [user, loading, router]);
 
   if (loading) {
-    return <div>Loading...</div>; // Show loading state while checking authentication
+    return <div>Loading...</div>;
+  }
+
+  if (!user || !user.isAdmin) {
+    return null;
   }
 
   return children;

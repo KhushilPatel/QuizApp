@@ -1,16 +1,13 @@
-import Userdashboard from '@/components/User/Dashboard'
-import UserRoute from '@/components/User/UserRoute'
-import React from 'react'
+import Userdashboard from "@/components/User/Dashboard";
+import UserRoute from "@/components/User/UserRoute";
+import React from "react";
 
 const dashboard = () => {
   return (
     <div>
-    
-
-   <   Userdashboard/>
-    
+      <Userdashboard />
     </div>
-  )
-}
+  );
+};
 
-export default dashboard
+export default dashboard;
